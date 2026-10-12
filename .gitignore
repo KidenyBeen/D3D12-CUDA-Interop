@@ -1,0 +1,141 @@
+# -----------------------------
+# Common
+# -----------------------------
+
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+
+# Executables
+*.exe
+*.out
+*.app
+
+
+# Local cache and user settings
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# IntelliSense / PCH / PDB / ILK / cache
+*.ipch
+*.iobj
+*.ipdb
+*.pdb
+*.ilk
+*.idb
+*.VC.db
+*.VC.VC.opendb
+*.opendb
+*.sdf
+*.opensdf
+
+# Build output directories
+[Bb]uild/
+x64/
+x86/
+ARM/
+ARM64/
+[Ww][Ii][Nn]32/
+Debug/
+Release/
+RelWithDebInfo/
+MinSizeRel/
+out/
+obj/
+bin/
+
+# MSBuild intermediate files and logs
+*.tlog
+*.lastbuildstate
+*.recipe
+*.log
+*.cache
+*.tmp
+Generated Files/
+
+# Visual Studio profiling and diagnostics
+*.psess
+*.vsp
+*.vspx
+
+# Visual Studio generated files
+ipch/
+*.VC.db-shm
+*.VC.db-wal
+
+
+# CUDA compiler intermediate / generated files
+*.cubin
+*.fatbin
+*.ptx
+*.cudafe*
+*.gpu
+*.compute_*
+*.nvlink
+*.ptxas
+*.module_id
+
+# CUDA build and cache directories
+.cuda_cache/
+compute_cache/
+
+
+# Compiled shader bytecode
+*.cso
+*.dxil
+*.dxbc
+
+# Shader compiler debug / intermediate files
+*.fxc
+*.hlsl.tmp
+
+
+
+CMakeFiles/
+CMakeCache.txt
+cmake-build*/
+build*/
+
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+desktop.ini
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+.nfs*
+
