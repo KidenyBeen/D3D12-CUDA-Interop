@@ -1,0 +1,35 @@
+#pragma once
+
+#include "Scene.h"
+
+// Client-only gameplay scene. Scene owns the reusable rendering/resource
+// infrastructure; concrete game objects are intentionally not carried over.
+class CMainScene final : public CScene
+{
+public:
+	CMainScene(HWND hWnd, CGameTimer* timer) : CScene(hWnd, timer) {}
+	~CMainScene() override = default;
+
+	bool OnProcessingMouseMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) override;
+	bool OnProcessingKeyboardMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) override;
+	bool ProcessInput() override;
+	void BuildObjects(ID3D12Device* device, ID3D12GraphicsCommandList* commandList) override;
+	void InitLights() override;
+	void CreateShaderVariables(ID3D12Device* device, ID3D12GraphicsCommandList* commandList) override;
+	void CreateSSAOKernel() override;
+	void ReleaseObjects() override;
+	void ReleaseUploadBuffers() override;
+	void ReleaseShaderVariables() override;
+	void PreviousTransform() override;
+	void AnimateObjects(float elapsedTime) override;
+	void OnPreRender(ID3D12GraphicsCommandList* commandList, int renderTargetCount,
+		D3D12_CPU_DESCRIPTOR_HANDLE* rtvHandles, D3D12_CPU_DESCRIPTOR_HANDLE* dsvHandle,
+		CCamera* camera) override;
+	void Render(ID3D12GraphicsCommandList* commandList, CCamera* camera) override;
+	void OnPostRender(ID3D12GraphicsCommandList* commandList, int renderTargetCount,
+		D3D12_CPU_DESCRIPTOR_HANDLE* rtvHandles, D3D12_CPU_DESCRIPTOR_HANDLE* dsvHandle,
+		CCamera* camera) override;
+	void UpdateShaderVariables(ID3D12GraphicsCommandList* commandList) override;
+	void OnGUI(ImGuiIO* gui) override;
+	void OnEnter() override;
+};

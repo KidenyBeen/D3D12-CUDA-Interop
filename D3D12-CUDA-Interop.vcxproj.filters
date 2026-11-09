@@ -13,5 +13,205 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+<<<<<<< ours
   </ItemGroup>
 </Project>
+=======
+    <Filter Include="Shader">
+      <UniqueIdentifier>{8fadb6ba-82d7-42c8-b635-bb0143cbb5fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Cuda">
+      <UniqueIdentifier>{7e92ec89-ab2e-486f-a4ba-ec2b0566b8a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\Common">
+      <UniqueIdentifier>{9f9e7677-74a0-4bbb-a2f3-c8b5c159018c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\Compute Shader">
+      <UniqueIdentifier>{5179daac-27db-4482-b197-a92c096b3735}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\Geomery Shader">
+      <UniqueIdentifier>{df2f65cb-3d48-4739-beb9-3b3ce82a3d11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\Pixel Shader">
+      <UniqueIdentifier>{b1b222fe-3e5f-406b-b17f-f396629a03e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\Vertex Shader">
+      <UniqueIdentifier>{e6829d56-f6fd-440c-8332-97c903d3b8c6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="*.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClInclude Include="*.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ResourceCompile Include="LabProjectPartice.rc">
+      <Filter>리소스 파일</Filter>
+    </ResourceCompile>
+    <None Include="Shader\**\*.hlsl">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="Shader\**\*.hlsli">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <ClCompile Include="*.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="*.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="*.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="*.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="*.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="*.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="*.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="*.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="*.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="*.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="*.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="*.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="*.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="*.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="*.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="*.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="*.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="*.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="*.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="*.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="*.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="*.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="*.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="*.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="*.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="*.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="*.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="*.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="*.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="*.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="*.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="*.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="*.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="*.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="*.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="*.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="*.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="*.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="*.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="*.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+    <None Include="Shader\**\*.hlsl" />
+  </ItemGroup>
+</Project>
+>>>>>>> theirs
