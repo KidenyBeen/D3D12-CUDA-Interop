@@ -42,6 +42,7 @@
 #include <math.h>
 #include <shellapi.h>
 #include <algorithm>
+#include <memory>
 
 #include <string>
 #include <wrl.h>

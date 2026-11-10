@@ -59,6 +59,8 @@ public:
 	//RootSignature
 	ComPtr<ID3D12RootSignature> m_cpd3dStartSceneRootSignature;
 	ComPtr<ID3D12RootSignature> m_cpd3dMainSceneRootSignature;
+	ComPtr<ID3D12RootSignature> m_cpd3dTestSCeneRootSignature; // 테스트를 위해서
+	ComPtr<ID3D12RootSignature> m_cpd3dTestSceenComputeRootSignature; // 테스트를 위해서
 	ComPtr<ID3D12RootSignature> m_cpd3dMainSceneComputeRootSignature;
 
 	void InitCommonStates(ID3D12Device* device);

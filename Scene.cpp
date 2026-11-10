@@ -713,40 +713,42 @@ void CScene::OnPostRender(ID3D12GraphicsCommandList* pd3dCommandList, int nRende
 
 void CScene::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	if (m_nWeather == 0)
-	{
-		if (m_pIBLBRDFTexture) //환경맵이 존재를 한다면
-		{
-			m_pIBLBRDFTexture->UpdateShaderVariables(pd3dCommandList);
-		}
+	//if (m_nWeather == 0)
+	//{
+	//	if (m_pIBLBRDFTexture) //환경맵이 존재를 한다면
+	//	{
+	//		m_pIBLBRDFTexture->UpdateShaderVariables(pd3dCommandList);
+	//	}
 
-		if (m_pIBLSpecluarTexture) //환경맵이 존재를 한다면
-		{
-			m_pIBLSpecluarTexture->UpdateShaderVariables(pd3dCommandList);
-		}
+	//	if (m_pIBLSpecluarTexture) //환경맵이 존재를 한다면
+	//	{
+	//		m_pIBLSpecluarTexture->UpdateShaderVariables(pd3dCommandList);
+	//	}
 
-		if (m_pIBLIrradianceTexture) //환경맵이 존재를 한다면
-		{
-			m_pIBLIrradianceTexture->UpdateShaderVariables(pd3dCommandList);
-		}
-	}
-	else
-	{
-		if (m_pIBLBRDFTextureCloud) //환경맵이 존재를 한다면
-		{
-			m_pIBLBRDFTextureCloud->UpdateShaderVariables(pd3dCommandList);
-		}
+	//	if (m_pIBLIrradianceTexture) //환경맵이 존재를 한다면
+	//	{
+	//		m_pIBLIrradianceTexture->UpdateShaderVariables(pd3dCommandList);
+	//	}
+	//}
+	//else
+	//{
+	//	if (m_pIBLBRDFTextureCloud) //환경맵이 존재를 한다면
+	//	{
+	//		m_pIBLBRDFTextureCloud->UpdateShaderVariables(pd3dCommandList);
+	//	}
 
-		if (m_pIBLSpecluarTextureCloud) //환경맵이 존재를 한다면
-		{
-			m_pIBLSpecluarTextureCloud->UpdateShaderVariables(pd3dCommandList);
-		}
+	//	if (m_pIBLSpecluarTextureCloud) //환경맵이 존재를 한다면
+	//	{
+	//		m_pIBLSpecluarTextureCloud->UpdateShaderVariables(pd3dCommandList);
+	//	}
 
-		if (m_pIBLIrradianceTextureCloud) //환경맵이 존재를 한다면
-		{
-			m_pIBLIrradianceTextureCloud->UpdateShaderVariables(pd3dCommandList);
-		}
-	}
+	//	if (m_pIBLIrradianceTextureCloud) //환경맵이 존재를 한다면
+	//	{
+	//		m_pIBLIrradianceTextureCloud->UpdateShaderVariables(pd3dCommandList);
+	//	}
+	//}
+
+
 }
 
 

@@ -323,6 +323,7 @@ void CGraphicsCommon::InitRootSignature(ID3D12Device* pd3dDevice)
 		m_cpd3dStartSceneRootSignature = cpd3dGraphicsRootSignature;
 	}
 
+	
 	//Main Scene
 	{
 		ComPtr<ID3D12RootSignature> cpd3dGraphicsRootSignature;
