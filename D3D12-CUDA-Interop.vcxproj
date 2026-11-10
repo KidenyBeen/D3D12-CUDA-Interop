@@ -134,6 +134,7 @@
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DDSTextureLoader12.cpp" />
+    <ClCompile Include="DirectXCudaInterop.cpp" />
     <ClCompile Include="GameFramework.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Gametimer.cpp" />
@@ -155,6 +156,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="d3dx12.h" />
     <ClInclude Include="DDSTextureLoader12.h" />
+    <ClInclude Include="DirectXCudaInterop.h" />
     <ClInclude Include="GameFramework.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Gametimer.h" />
@@ -174,6 +176,7 @@
     <ClInclude Include="WICTextureLoader12.h" />
     <ClInclude Include="windowProjctStart.h" />
     <ResourceCompile Include="LabProjectPartice.rc" />
+    <None Include="DirectXCudaInterop.cu" />
     <None Include="Shader\Common\Common.hlsli" />
     <None Include="Shader\Common\Lighting.hlsli" />
     <None Include="Shader\Common\PBRFun.hlsli" />
