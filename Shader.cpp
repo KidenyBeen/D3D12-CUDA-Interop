@@ -405,6 +405,26 @@ void CPlanShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 	CShader::Render(pd3dCommandList, pCamera);
 }
 
+CTestShader::CTestShader()
+{
+	m_cpd3dMainPSO = CGraphicsCommon::GetInstance().m_cpd3dTestPSO;
+	if (!m_cpd3dMainPSO)
+	{
+		OutputDebugStringW(L"[CTestShader] m_cpd3dTestPSO is null.\n");
+	}
+}
+
+void CTestShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	(void)pd3dCommandList;
+}
+
+void CTestShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+{
+	(void)pCamera;
+	CShader::Render(pd3dCommandList, pCamera);
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 CTerrainShader::CTerrainShader()

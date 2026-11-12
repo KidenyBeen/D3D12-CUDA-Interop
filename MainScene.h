@@ -6,11 +6,16 @@
 // infrastructure; concrete game objects are intentionally not carried over.
 class CMainScene final : public CScene
 {
+private:
+	bool ComputeShaderSet = true;
+	bool CUDASet = false;
+	int BlurSet = 0;
+
 public:
 	CMainScene(HWND hWnd, CGameTimer* timer) : CScene(hWnd, timer) {}
 	~CMainScene() override = default;
 
-	//GameFramwwork¿¡ ÀÖ´Â Ä«¸Ş¶ó¿Í´Â º°°³¿¡ Ä«¸Ş¶ó·Î Scene¿¡ Render¿¡ ³Ñ¾î¿Â pCamera´Â ÇöÀç »ç¿ëÁßÀÌ ¾Æ´Ï´Ù
+	//GameFramwworkì— ìˆëŠ” ì¹´ë©”ë¼ì™€ëŠ” ë³„ê°œì— ì¹´ë©”ë¼ë¡œ Sceneì— Renderì— ë„˜ì–´ì˜¨ pCameraëŠ” í˜„ì¬ ì‚¬ìš©ì¤‘ì´ ì•„ë‹ˆë‹¤
 	shared_ptr<CCamera> m_pCamera = nullptr;
 	shared_ptr<CPlayer> m_pPlayer = nullptr;
 	
@@ -38,6 +43,4 @@ public:
 	void UpdateShaderVariables(ID3D12GraphicsCommandList* commandList) override;
 	void OnGUI(ImGuiIO* gui) override;
 	void OnEnter() override;
-
-
 };

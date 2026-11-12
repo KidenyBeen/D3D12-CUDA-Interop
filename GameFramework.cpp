@@ -63,7 +63,7 @@ void CGameFramework::InitImGui()
 
 	m_io = ImGui::GetIO();
 	m_io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // 키보드 입력 허용
-	
+
 	ImGui::StyleColorsDark();
 
 	D3D12_DESCRIPTOR_HEAP_DESC desc;
@@ -191,6 +191,14 @@ void CGameFramework::CreateDirect3dDevice()
 			IID_PPV_ARGS(&m_pd3dDevice));
 	}
 
+#if defined(_DEBUG)
+	ComPtr<ID3D12InfoQueue> pd3dInfoQueue;
+	if (SUCCEEDED(m_pd3dDevice.As(&pd3dInfoQueue)))
+	{
+		pd3dInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
+		pd3dInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
+	}
+#endif
 
 	// Fence 생성
 
@@ -769,6 +777,7 @@ void CGameFramework::FrameAdvance()
 	::SynchronizeResourceTransition(m_pd3dCommandList.Get(), m_ppd3dRenderTargetBuffers[m_nSwapChainBufferIndex].Get()
 	, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
+
 	//m_pd3dCommandList->RSSetViewports(1,&m_d3dViewport);	//Viewport를 RS 단계에 전달
 	//m_pd3dCommandList->RSSetScissorRects(1,&m_d3dScissorRect);	// 시져 사각형 또한 전달
 
@@ -781,7 +790,7 @@ void CGameFramework::FrameAdvance()
 	//d3dRtvDescriptorHandle.ptr += (::gnRtvDescriptorIncrementSize * m_nSwapChainBufferIndex);
 	//현재 사용할 렌더 타겟에 해당하는 서술자 핸들을 계산
 
-	//float pfClearColor[4] = { 0.0f,0.0f,0.0f,1.0f };
+	float pfClearColor[4] = { 0.0f,0.0f,0.0f,1.0f };
 	//m_pd3dCommandList->ClearRenderTargetView(d3dRtvDescriptorHandle, pfClearColor,
 	//	0, NULL);
 	//원하는 색상으로 렌더 타겟(뷰)를 지운다.
@@ -791,6 +800,9 @@ void CGameFramework::FrameAdvance()
 		m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL,
 		1.0f, 0, 0, NULL);
+
+	m_pd3dCommandList->ClearRenderTargetView(m_pd3dRTVCPUHandles[m_nSwapChainBufferIndex], pfClearColor, 0, NULL);
+
 
 	//OM 단계 최종적으로 후면버퍼에 그려주는 단계 여기서 Blending과 깊이 테스트를 처리하지만 셰이더 코드에서
 	//PS 단계에서 OM 단계 이전에 깊이 테스트를 처리하는 경우 또한 존재한다.
@@ -811,6 +823,15 @@ void CGameFramework::FrameAdvance()
 	GUIProcess(); //
 
 	ImGui::Render();
+
+	// Scene rendering can change or clear the output-merger targets. Bind the
+	// current swap-chain back buffer again before recording ImGui draw calls.
+	m_pd3dCommandList->OMSetRenderTargets(
+		1,
+		&m_pd3dRTVCPUHandles[m_nSwapChainBufferIndex],
+		TRUE,
+		&d3dDsvDescriptorHandle);
+
 	ID3D12DescriptorHeap* heaps[] = { m_ImGuiSRVDescriptorHeap.Get() };
 	m_pd3dCommandList->SetDescriptorHeaps(_countof(heaps), heaps);
 	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), m_pd3dCommandList.Get());

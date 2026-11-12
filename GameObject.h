@@ -680,6 +680,15 @@ public:
 	CPlanObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual ~CPlanObject();
 };
+
+class CTestObject : public CGameObject
+{
+public:
+	CTestObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~CTestObject() = default;
+
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera) override;
+};
 //////////////////////////////////////////////////
 //
 

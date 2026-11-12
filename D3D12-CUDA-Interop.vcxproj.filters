@@ -39,92 +39,263 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Animation.cpp"><Filter>소스 파일</Filter></ClCompile>
-    <ClCompile Include="Camera.cpp"><Filter>소스 파일</Filter></ClCompile>
-    <ClCompile Include="DDSTextureLoader12.cpp"><Filter>소스 파일\Loader</Filter></ClCompile>
-    <ClCompile Include="GameFramework.cpp"><Filter>소스 파일</Filter></ClCompile>
-    <ClCompile Include="GameObject.cpp"><Filter>소스 파일</Filter></ClCompile>
-    <ClCompile Include="Gametimer.cpp"><Filter>소스 파일</Filter></ClCompile>
-    <ClCompile Include="GraphicsCommon.cpp"><Filter>소스 파일</Filter></ClCompile>
-    <ClCompile Include="GraphicsPSO.cpp"><Filter>소스 파일</Filter></ClCompile>
-    <ClCompile Include="MainScene.cpp"><Filter>소스 파일\Scenes</Filter></ClCompile>
-    <ClCompile Include="Mesh.cpp"><Filter>소스 파일</Filter></ClCompile>
-    <ClCompile Include="Player.cpp"><Filter>소스 파일</Filter></ClCompile>
-    <ClCompile Include="Renderer.cpp"><Filter>소스 파일</Filter></ClCompile>
-    <ClCompile Include="Scene.cpp"><Filter>소스 파일\Scenes</Filter></ClCompile>
-    <ClCompile Include="SceneManager.cpp"><Filter>소스 파일\Scenes</Filter></ClCompile>
-    <ClCompile Include="Shader.cpp"><Filter>소스 파일</Filter></ClCompile>
-    <ClCompile Include="StartScene.cpp"><Filter>소스 파일\Scenes</Filter></ClCompile>
-    <ClCompile Include="stdafx.cpp"><Filter>소스 파일</Filter></ClCompile>
-    <ClCompile Include="targetver.cpp"><Filter>소스 파일</Filter></ClCompile>
-    <ClCompile Include="WICTextureLoader12.cpp"><Filter>소스 파일\Loader</Filter></ClCompile>
-    <ClCompile Include="windowProjctStart.cpp"><Filter>소스 파일</Filter></ClCompile>
+    <ClCompile Include="Animation.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="DDSTextureLoader12.cpp">
+      <Filter>소스 파일\Loader</Filter>
+    </ClCompile>
+    <ClCompile Include="GameFramework.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Gametimer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsCommon.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsPSO.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="MainScene.cpp">
+      <Filter>소스 파일\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>소스 파일\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneManager.cpp">
+      <Filter>소스 파일\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="StartScene.cpp">
+      <Filter>소스 파일\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="targetver.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="WICTextureLoader12.cpp">
+      <Filter>소스 파일\Loader</Filter>
+    </ClCompile>
+    <ClCompile Include="windowProjctStart.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXCudaInterop.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Animation.h"><Filter>헤더 파일</Filter></ClInclude>
-    <ClInclude Include="Camera.h"><Filter>헤더 파일</Filter></ClInclude>
-    <ClInclude Include="d3dx12.h"><Filter>헤더 파일</Filter></ClInclude>
-    <ClInclude Include="DDSTextureLoader12.h"><Filter>헤더 파일\Loader</Filter></ClInclude>
-    <ClInclude Include="GameFramework.h"><Filter>헤더 파일</Filter></ClInclude>
-    <ClInclude Include="GameObject.h"><Filter>헤더 파일</Filter></ClInclude>
-    <ClInclude Include="Gametimer.h"><Filter>헤더 파일</Filter></ClInclude>
-    <ClInclude Include="GraphicsCommon.h"><Filter>헤더 파일</Filter></ClInclude>
-    <ClInclude Include="GraphicsPSO.h"><Filter>헤더 파일</Filter></ClInclude>
-    <ClInclude Include="MainScene.h"><Filter>헤더 파일\Scenes</Filter></ClInclude>
-    <ClInclude Include="Mesh.h"><Filter>헤더 파일</Filter></ClInclude>
-    <ClInclude Include="Player.h"><Filter>헤더 파일</Filter></ClInclude>
-    <ClInclude Include="Renderer.h"><Filter>헤더 파일</Filter></ClInclude>
-    <ClInclude Include="Resource.h"><Filter>헤더 파일</Filter></ClInclude>
-    <ClInclude Include="Scene.h"><Filter>헤더 파일\Scenes</Filter></ClInclude>
-    <ClInclude Include="SceneManager.h"><Filter>헤더 파일\Scenes</Filter></ClInclude>
-    <ClInclude Include="Shader.h"><Filter>헤더 파일</Filter></ClInclude>
-    <ClInclude Include="StartScene.h"><Filter>헤더 파일\Scenes</Filter></ClInclude>
-    <ClInclude Include="stdafx.h"><Filter>헤더 파일</Filter></ClInclude>
-    <ClInclude Include="targetver.h"><Filter>헤더 파일</Filter></ClInclude>
-    <ClInclude Include="WICTextureLoader12.h"><Filter>헤더 파일\Loader</Filter></ClInclude>
-    <ClInclude Include="windowProjctStart.h"><Filter>헤더 파일</Filter></ClInclude>
+    <ClInclude Include="Animation.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx12.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="DDSTextureLoader12.h">
+      <Filter>헤더 파일\Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFramework.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Gametimer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsCommon.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsPSO.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="MainScene.h">
+      <Filter>헤더 파일\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>헤더 파일\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneManager.h">
+      <Filter>헤더 파일\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="StartScene.h">
+      <Filter>헤더 파일\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="WICTextureLoader12.h">
+      <Filter>헤더 파일\Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="windowProjctStart.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXCudaInterop.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LabProjectPartice.rc" />
-    <None Include="Shader\Common\Common.hlsli"><Filter>Shader\Common</Filter></None>
-    <None Include="Shader\Common\Lighting.hlsli"><Filter>Shader\Common</Filter></None>
-    <None Include="Shader\Common\PBRFun.hlsli"><Filter>Shader\Common</Filter></None>
-    <None Include="Shader\Common\TileableNoise.hlsli"><Filter>Shader\Common</Filter></None>
+    <None Include="Shader\Common\Common.hlsli">
+      <Filter>Shader\Common</Filter>
+    </None>
+    <None Include="Shader\Common\Lighting.hlsli">
+      <Filter>Shader\Common</Filter>
+    </None>
+    <None Include="Shader\Common\PBRFun.hlsli">
+      <Filter>Shader\Common</Filter>
+    </None>
+    <None Include="Shader\Common\TileableNoise.hlsli">
+      <Filter>Shader\Common</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shader\CS\BloomCS.hlsl"><Filter>Shader\CS</Filter></FxCompile>
-    <FxCompile Include="Shader\CS\BlurXCS.hlsl"><Filter>Shader\CS</Filter></FxCompile>
-    <FxCompile Include="Shader\CS\BlurYCS.hlsl"><Filter>Shader\CS</Filter></FxCompile>
-    <FxCompile Include="Shader\CS\ClusteredRenderingCS.hlsl"><Filter>Shader\CS</Filter></FxCompile>
-    <FxCompile Include="Shader\CS\CombineCS.hlsl"><Filter>Shader\CS</Filter></FxCompile>
-    <FxCompile Include="Shader\CS\PostProcessingCS.hlsl"><Filter>Shader\CS</Filter></FxCompile>
-    <FxCompile Include="Shader\CS\SSAOCS.hlsl"><Filter>Shader\CS</Filter></FxCompile>
-    <FxCompile Include="Shader\GS\NormalGS.hlsl"><Filter>Shader\GS</Filter></FxCompile>
-    <FxCompile Include="Shader\GS\ParticleGS.hlsl"><Filter>Shader\GS</Filter></FxCompile>
-    <FxCompile Include="Shader\PS\BasicPS.hlsl"><Filter>Shader\PS</Filter></FxCompile>
-    <FxCompile Include="Shader\PS\BuildingPS.hlsl"><Filter>Shader\PS</Filter></FxCompile>
-    <FxCompile Include="Shader\PS\DefaultPS.hlsl"><Filter>Shader\PS</Filter></FxCompile>
-    <FxCompile Include="Shader\PS\DepthOnlyPS.hlsl"><Filter>Shader\PS</Filter></FxCompile>
-    <FxCompile Include="Shader\PS\ParticlePS.hlsl"><Filter>Shader\PS</Filter></FxCompile>
-    <FxCompile Include="Shader\PS\PlayerPS.hlsl"><Filter>Shader\PS</Filter></FxCompile>
-    <FxCompile Include="Shader\PS\PostProcessingPS.hlsl"><Filter>Shader\PS</Filter></FxCompile>
-    <FxCompile Include="Shader\PS\SimpleGreenPS.hlsl"><Filter>Shader\PS</Filter></FxCompile>
-    <FxCompile Include="Shader\PS\SimplePS.hlsl"><Filter>Shader\PS</Filter></FxCompile>
-    <FxCompile Include="Shader\PS\SkinnedPS.hlsl"><Filter>Shader\PS</Filter></FxCompile>
-    <FxCompile Include="Shader\PS\SkyBoxPS.hlsl"><Filter>Shader\PS</Filter></FxCompile>
-    <FxCompile Include="Shader\PS\TerrainPS.hlsl"><Filter>Shader\PS</Filter></FxCompile>
-    <FxCompile Include="Shader\VS\BasicVS.hlsl"><Filter>Shader\VS</Filter></FxCompile>
-    <FxCompile Include="Shader\VS\DefaultVS.hlsl"><Filter>Shader\VS</Filter></FxCompile>
-    <FxCompile Include="Shader\VS\DepthOnlyBasicVS.hlsl"><Filter>Shader\VS</Filter></FxCompile>
-    <FxCompile Include="Shader\VS\DepthOnlyDefaultVS.hlsl"><Filter>Shader\VS</Filter></FxCompile>
-    <FxCompile Include="Shader\VS\DepthOnlySkinnedVS.hlsl"><Filter>Shader\VS</Filter></FxCompile>
-    <FxCompile Include="Shader\VS\DepthOnlyTerrainVS.hlsl"><Filter>Shader\VS</Filter></FxCompile>
-    <FxCompile Include="Shader\VS\DepthOnlyVS.hlsl"><Filter>Shader\VS</Filter></FxCompile>
-    <FxCompile Include="Shader\VS\ParticleVS.hlsl"><Filter>Shader\VS</Filter></FxCompile>
-    <FxCompile Include="Shader\VS\PlayerVS.hlsl"><Filter>Shader\VS</Filter></FxCompile>
-    <FxCompile Include="Shader\VS\PostProcessingVS.hlsl"><Filter>Shader\VS</Filter></FxCompile>
-    <FxCompile Include="Shader\VS\SkinnedVS.hlsl"><Filter>Shader\VS</Filter></FxCompile>
-    <FxCompile Include="Shader\VS\SkyBoxVS.hlsl"><Filter>Shader\VS</Filter></FxCompile>
-    <FxCompile Include="Shader\VS\TerrainVS.hlsl"><Filter>Shader\VS</Filter></FxCompile>
+    <FxCompile Include="Shader\CS\BloomCS.hlsl">
+      <Filter>Shader\CS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\CS\BlurXCS.hlsl">
+      <Filter>Shader\CS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\CS\BlurYCS.hlsl">
+      <Filter>Shader\CS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\CS\ClusteredRenderingCS.hlsl">
+      <Filter>Shader\CS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\CS\CombineCS.hlsl">
+      <Filter>Shader\CS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\CS\PostProcessingCS.hlsl">
+      <Filter>Shader\CS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\CS\SSAOCS.hlsl">
+      <Filter>Shader\CS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\GS\NormalGS.hlsl">
+      <Filter>Shader\GS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\GS\ParticleGS.hlsl">
+      <Filter>Shader\GS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\PS\BasicPS.hlsl">
+      <Filter>Shader\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\PS\BuildingPS.hlsl">
+      <Filter>Shader\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\PS\DefaultPS.hlsl">
+      <Filter>Shader\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\PS\DepthOnlyPS.hlsl">
+      <Filter>Shader\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\PS\ParticlePS.hlsl">
+      <Filter>Shader\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\PS\PlayerPS.hlsl">
+      <Filter>Shader\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\PS\PostProcessingPS.hlsl">
+      <Filter>Shader\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\PS\SimpleGreenPS.hlsl">
+      <Filter>Shader\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\PS\SimplePS.hlsl">
+      <Filter>Shader\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\PS\SkinnedPS.hlsl">
+      <Filter>Shader\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\PS\SkyBoxPS.hlsl">
+      <Filter>Shader\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\PS\TerrainPS.hlsl">
+      <Filter>Shader\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\VS\BasicVS.hlsl">
+      <Filter>Shader\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\VS\DefaultVS.hlsl">
+      <Filter>Shader\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\VS\DepthOnlyBasicVS.hlsl">
+      <Filter>Shader\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\VS\DepthOnlyDefaultVS.hlsl">
+      <Filter>Shader\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\VS\DepthOnlySkinnedVS.hlsl">
+      <Filter>Shader\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\VS\DepthOnlyTerrainVS.hlsl">
+      <Filter>Shader\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\VS\DepthOnlyVS.hlsl">
+      <Filter>Shader\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\VS\ParticleVS.hlsl">
+      <Filter>Shader\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\VS\PlayerVS.hlsl">
+      <Filter>Shader\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\VS\PostProcessingVS.hlsl">
+      <Filter>Shader\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\VS\SkinnedVS.hlsl">
+      <Filter>Shader\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\VS\SkyBoxVS.hlsl">
+      <Filter>Shader\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\VS\TerrainVS.hlsl">
+      <Filter>Shader\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\VS\TestVS.hlsl">
+      <Filter>Shader\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\PS\TestPS.hlsl">
+      <Filter>Shader\PS</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DirectXCudaInterop.cu" />
   </ItemGroup>
 </Project>

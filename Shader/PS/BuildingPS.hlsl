@@ -1,4 +1,4 @@
-﻿#include "../Common/Common.hlsli"
+#include "../Common/Common.hlsli"
 Texture2D gtxtTextureAlbedo : register(t1);
 Texture2D gtxtTextureNormal : register(t2);
 Texture2D gtxtTextureRoughnness : register(t3);

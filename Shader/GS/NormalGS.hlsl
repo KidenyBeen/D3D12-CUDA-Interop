@@ -1,4 +1,4 @@
-﻿#include "../Common/Common.hlsli"
+#include "../Common/Common.hlsli"
 
 /*
 * 아무리 GS가 들어가서 VS -> PS를 통과하지않고 VS -> GS -> PS를 통과해서 OUTPUT이 바뀔 수 있다해도

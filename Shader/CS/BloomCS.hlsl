@@ -1,4 +1,4 @@
-﻿#include "../Common/Common.hlsli"
+#include "../Common/Common.hlsli"
 #include "../Common/TileableNoise.hlsli"
 
 #define MATERIAL_SSAO_USE        0x01

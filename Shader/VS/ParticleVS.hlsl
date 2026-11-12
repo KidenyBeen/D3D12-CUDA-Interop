@@ -1,4 +1,4 @@
-﻿#include "../Common/Common.hlsli"
+#include "../Common/Common.hlsli"
 #include "../Common/TileableNoise.hlsli"
 
 struct VS_INPUT

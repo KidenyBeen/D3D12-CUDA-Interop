@@ -1,4 +1,4 @@
-﻿static const float pi = 3.141593;
+static const float pi = 3.141593;
 
 RWTexture2D<float4> outputTex : register(u0);
 Texture2D inputTex : register(t0);

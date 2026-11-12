@@ -1,4 +1,4 @@
-﻿#include "../Common/Common.hlsli"
+#include "../Common/Common.hlsli"
 
 Texture2D gtxtDeptOnlyTexture : register(t1); //DepthMap으로 읽어오자
 Texture2D gtxtTextureHDR : register(t14); //HDR 후처리 Texture

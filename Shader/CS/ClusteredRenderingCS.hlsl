@@ -1,4 +1,4 @@
-﻿#define MAX_LIGHTS_PER_CLUSTER 128
+#define MAX_LIGHTS_PER_CLUSTER 128
 #define MAX_LIGHTS 56 // DIrection Light를 빼고서 해야함
 cbuffer ClusterCB : register(b1)
 {

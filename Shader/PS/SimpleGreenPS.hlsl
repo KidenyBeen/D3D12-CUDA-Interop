@@ -1,4 +1,4 @@
-﻿#include "../Common/Common.hlsli"
+#include "../Common/Common.hlsli"
 struct VS_OUTPUT
 {
 	float3 positionL : POSITION;

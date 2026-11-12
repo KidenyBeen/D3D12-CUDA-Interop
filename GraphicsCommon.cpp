@@ -884,6 +884,14 @@ void CGraphicsCommon::InitPipelineStates(ID3D12Device* pd3dDevice)
 
 	m_cpd3dParticlePSO = CreateNormalPSO(pd3dDevice, m_cpd3dMainSceneRootSignature.Get(), L"Shader/VS/ParticleVS.hlsl", L"Shader/GS/ParticleGS.hlsl", L"Shader/PS/ParticlePS.hlsl",
 		m_d3dDefaultRasterize, m_d3dAlphaBlend, m_d3dDefaultDepth, m_d3dParticleInput, m_dxgiRtvFormatHDR);
+
+	// Full-screen test plane: one LDR swap-chain target, no depth testing.
+	m_cpd3dTestPSO = CreatePSO(pd3dDevice, m_cpd3dMainSceneRootSignature.Get(), L"Shader/VS/TestVS.hlsl", L"Shader/PS/TestPS.hlsl",
+		m_d3dDefaultRasterize, m_d3dDefaultBlend, m_d3dDoneDepth, m_d3dBasicInput, m_dxgiRtvFormatLDR, m_dxgiDsvFormatDefualt, 1);
+	if (!m_cpd3dTestPSO)
+	{
+		OutputDebugStringW(L"[GraphicsCommon] Failed to create m_cpd3dTestPSO.\n");
+	}
 }
 
 void CGraphicsCommon::InitComputePipelineStates(ID3D12Device* pd3dDevice)
@@ -948,10 +956,21 @@ ComPtr<ID3D12PipelineState> CGraphicsCommon::CreatePSO(ID3D12Device* pd3dDevice,
 	}
 	d3dPipelineStateDesc.DSVFormat = dxgiDsvFormat;
 	d3dPipelineStateDesc.SampleDesc.Count = 1;
-	pd3dDevice->CreateGraphicsPipelineState(&d3dPipelineStateDesc, __uuidof(ID3D12PipelineState), (void**)cpd3dPipelineState.GetAddressOf());
+	const HRESULT hr = pd3dDevice->CreateGraphicsPipelineState(
+		&d3dPipelineStateDesc,
+		IID_PPV_ARGS(&cpd3dPipelineState));
+	if (FAILED(hr))
+	{
+		wchar_t message[512] = {};
+		swprintf_s(message,
+			L"[GraphicsCommon] CreateGraphicsPipelineState failed (0x%08X). VS=%ls, PS=%ls\n",
+			static_cast<unsigned int>(hr),
+			pszVSFileName ? pszVSFileName : L"<null>",
+			pszPSFileName ? pszPSFileName : L"<null>");
+		OutputDebugStringW(message);
+	}
 
-	if (pd3dVertexShaderBlob) pd3dVertexShaderBlob->Release();
-	if (pd3dPixelShaderBlob) pd3dPixelShaderBlob->Release();
+	// Shader blobs are ComPtr instances and release themselves automatically.
 	//if (d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[]
 	//	d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 
@@ -985,8 +1004,7 @@ ComPtr<ID3D12PipelineState> CGraphicsCommon::CreateNormalPSO(ID3D12Device* pd3dD
 	d3dPipelineStateDesc.SampleDesc.Count = 1;
 	pd3dDevice->CreateGraphicsPipelineState(&d3dPipelineStateDesc, __uuidof(ID3D12PipelineState), (void**)cpd3dPipelineState.GetAddressOf());
 
-	if (pd3dVertexShaderBlob) pd3dVertexShaderBlob->Release();
-	if (pd3dPixelShaderBlob) pd3dPixelShaderBlob->Release();
+	// Shader blobs are ComPtr instances and release themselves automatically.
 	//if (d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[]
 	//	d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 	//

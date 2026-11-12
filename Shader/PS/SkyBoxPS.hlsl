@@ -1,4 +1,4 @@
-﻿#include "../Common/Common.hlsli"
+#include "../Common/Common.hlsli"
 
 
 TextureCube gtxtSkyCubeTexture : register(t10); // t10 : skybox

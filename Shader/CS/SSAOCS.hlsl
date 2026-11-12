@@ -1,4 +1,4 @@
-﻿#include "../Common/TileableNoise.hlsli"
+#include "../Common/TileableNoise.hlsli"
 
 #define SSAO_KERNEL_SIZE 16
 

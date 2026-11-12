@@ -2055,6 +2055,20 @@ CPlanObject::~CPlanObject()
 {
 }
 
+CTestObject::CTestObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
+	ID3D12RootSignature* pd3dGraphicsRootSignature) : CGameObject()
+{
+	(void)pd3dGraphicsRootSignature;
+
+	SetMesh(new CPlanMesh(pd3dDevice, pd3dCommandList, 1, 1, 1.0f, 1.0f));
+	SetShader(new CTestShader());
+}
+
+void CTestObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+{
+	CGameObject::Render(pd3dCommandList, pCamera, false, false, false, false);
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //

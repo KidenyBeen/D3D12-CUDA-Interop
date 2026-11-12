@@ -186,6 +186,16 @@ private:
 
 };
 
+class CTestShader : public CShader
+{
+public:
+	CTestShader();
+	virtual ~CTestShader() = default;
+
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
+};
+
 class CTerrainShader : public CShader
 {
 

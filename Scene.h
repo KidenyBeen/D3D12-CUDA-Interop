@@ -169,7 +169,7 @@ protected:
 	CGameObject** m_ppObjects = NULL;
 	int m_nObjects = 0;
 
-	CGameObject* m_pTestObject = NULL;
+	CTestObject* m_pTestObject = NULL;
 
 	int m_nCBVCount = 0; //CBV Heap에 들어갈 CBV 갯수 오브젝트 갯수
 	int m_nSRVCount = 0; //Texture 몇개 쓸껀지

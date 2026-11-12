@@ -1,4 +1,4 @@
-﻿#include "../Common/Common.hlsli"
+#include "../Common/Common.hlsli"
 
 
 //정점 셰이더의 입력을 위한 구조체를 선언한다.

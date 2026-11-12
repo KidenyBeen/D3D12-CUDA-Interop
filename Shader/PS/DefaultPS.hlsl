@@ -1,4 +1,4 @@
-﻿#include "../Common/Common.hlsli"
+#include "../Common/Common.hlsli"
 #include "../Common/Lighting.hlsli"
 #include "../Common/PBRFun.hlsli"
 
