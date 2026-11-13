@@ -54,6 +54,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 12.8.props" Condition="Exists('$(VCTargetsPath)\BuildCustomizations\CUDA 12.8.props')" />
   </ImportGroup>
   <ImportGroup Label="Shared">
   </ImportGroup>
@@ -162,6 +163,7 @@
     <ClInclude Include="Gametimer.h" />
     <ClInclude Include="GraphicsCommon.h" />
     <ClInclude Include="GraphicsPSO.h" />
+    <ClInclude Include="helper_cuda.h" />
     <ClInclude Include="MainScene.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Player.h" />
@@ -192,7 +194,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <ResourceCompile Include="LabProjectPartice.rc" />
-    <None Include="DirectXCudaInterop.cu" />
+    <CudaCompile Include="DirectXCudaInterop.cu">
+      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
+    </CudaCompile>
     <None Include="Shader\Common\Common.hlsli" />
     <None Include="Shader\Common\Lighting.hlsli" />
     <None Include="Shader\Common\PBRFun.hlsli" />
@@ -369,6 +373,7 @@
     </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 12.8.targets" Condition="Exists('$(VCTargetsPath)\BuildCustomizations\CUDA 12.8.targets')" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
 </Project>

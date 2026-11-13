@@ -169,6 +169,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="DirectXCudaInterop.h" />
+    <ClInclude Include="helper_cuda.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LabProjectPartice.rc" />
@@ -296,6 +299,6 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="DirectXCudaInterop.cu" />
+    <CudaCompile Include="DirectXCudaInterop.cu" />
   </ItemGroup>
 </Project>

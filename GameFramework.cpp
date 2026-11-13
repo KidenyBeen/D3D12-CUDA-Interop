@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
 #include "GameFramework.h"
+#include "DirectXCudaInterop.h"
 
 
 CGameFramework::CGameFramework()
@@ -39,6 +40,7 @@ bool CGameFramework::OnCreate(HINSTANCE hInstantce, HWND hMainWnd)
 	m_hWnd = hMainWnd;	//윈도우 핸들
 
 	CreateDirect3dDevice();	//Device를 만들고
+	CDirectXCudaInterop::RunCudaConsoleTest(); // Scene과 독립된 CUDA 커널 실행 확인
 	CreateCommandQueueAndList();	// CommandList는 Device로 만들 수 있으니 이후에 선언
 	CreateRtvAndDsvDescriptorHeaps();	//RTV와 DSV를 위한 DescriptorHeap을 구성한다 이것도 Device를 써야 함으로 이후에 선언
 	CreateSwapChain();	//DXGI 와 Device 그리고 CommandList를 이용해 스왑체인을 구성해야 한다.
