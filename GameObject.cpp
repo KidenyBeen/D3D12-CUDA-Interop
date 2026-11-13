@@ -58,9 +58,10 @@ CTexture::~CTexture()
 {
 	if (m_ppd3dTextures)
 	{
-		for (int i = 0; i < m_nTextures; i++) if (m_ppd3dTextures[i]) m_ppd3dTextures[i]->Release();
+		// ComPtr 배열 소멸자가 각 리소스의 Release를 처리한다.
 		delete[] m_ppd3dTextures;
 	}
+	if (m_ppd3dTextureUploadBuffers) delete[] m_ppd3dTextureUploadBuffers;
 
 	if (m_ppstrTextureNames) delete[] m_ppstrTextureNames;
 
@@ -69,7 +70,9 @@ CTexture::~CTexture()
 	if (m_pnBufferElements) delete[] m_pnBufferElements;
 
 	if (m_pnRootParameterIndices) delete[] m_pnRootParameterIndices;
+	if (m_pnComputeRootParameterIndices) delete[] m_pnComputeRootParameterIndices;
 	if (m_pd3dSrvGpuDescriptorHandles) delete[] m_pd3dSrvGpuDescriptorHandles;
+	if (m_pd3dUavGpuDescriptorHandles) delete[] m_pd3dUavGpuDescriptorHandles;
 
 	if (m_pd3dSamplerGpuDescriptorHandles) delete[] m_pd3dSamplerGpuDescriptorHandles;
 }
@@ -79,6 +82,42 @@ ComPtr<ID3D12Resource> CTexture::CreateTexture(ID3D12Device* pd3dDevice, UINT nW
 	m_pnResourceTypes[nIndex] = nResourceType;
 	m_ppd3dTextures[nIndex] = ::CreateTexture2DResource(pd3dDevice, nWidth, nHeight, 1, 0, dxgiFormat, d3dResourceFlags, d3dResourceStates, pd3dClearValue);
 	return(m_ppd3dTextures[nIndex]);
+}
+
+ComPtr<ID3D12Resource> CTexture::CreateSharedTexture(ID3D12Device* pd3dDevice, UINT nWidth,
+	UINT nHeight, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS d3dResourceFlags,
+	D3D12_RESOURCE_STATES d3dResourceStates, D3D12_CLEAR_VALUE* pd3dClearValue,
+	UINT nResourceType, UINT nIndex)
+{
+	m_pnResourceTypes[nIndex] = nResourceType;
+
+	D3D12_HEAP_PROPERTIES d3dHeapProperties = {};
+	d3dHeapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
+	d3dHeapProperties.CreationNodeMask = 1;
+	d3dHeapProperties.VisibleNodeMask = 1;
+
+	D3D12_RESOURCE_DESC d3dResourceDesc = {};
+	d3dResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	d3dResourceDesc.Width = nWidth;
+	d3dResourceDesc.Height = nHeight;
+	d3dResourceDesc.DepthOrArraySize = 1;
+	d3dResourceDesc.MipLevels = 1;
+	d3dResourceDesc.Format = dxgiFormat;
+	d3dResourceDesc.SampleDesc.Count = 1;
+	d3dResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	d3dResourceDesc.Flags = d3dResourceFlags;
+
+	HRESULT hResult = pd3dDevice->CreateCommittedResource(
+		&d3dHeapProperties, D3D12_HEAP_FLAG_SHARED, &d3dResourceDesc,
+		d3dResourceStates, pd3dClearValue, IID_PPV_ARGS(&m_ppd3dTextures[nIndex]));
+	if (FAILED(hResult))
+	{
+		_com_error error(hResult);
+		OutputDebugStringW(L"[CreateSharedTexture] FAILED: ");
+		OutputDebugStringW(error.ErrorMessage());
+		OutputDebugStringW(L"\n");
+	}
+	return m_ppd3dTextures[nIndex];
 }
 
 //어느 루트 파라미터 인덱스에 Texture를 연결할지 지정.

@@ -29,7 +29,7 @@ CGameFramework::CGameFramework()
 
 CGameFramework::~CGameFramework()
 {
-
+	
 }
 
 //응용 프로그램이 실행되고 주 윈도우가 생성되면 호출되는 함수이다.
@@ -368,7 +368,8 @@ void CGameFramework::CreateRtvAndDsvDescriptorHeaps()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;
 	::ZeroMemory(&d3dDescriptorHeapDesc, sizeof(D3D12_DESCRIPTOR_HEAP_DESC));
-	d3dDescriptorHeapDesc.NumDescriptors = m_nSwapChainBuffers + 1 + 1 + 1;	//스왑 체인의 갯수와 동일하게 설정
+	d3dDescriptorHeapDesc.NumDescriptors = m_nSwapChainBuffers + 1 + 1 + 1 + 1;
+	// SwapChain 2개 + 후처리 RTV 3개 + CUDA 공유 RTV 1개
 	d3dDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;	//RTV로 DescriptorHeap을 사용한다는 의미
 	d3dDescriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	d3dDescriptorHeapDesc.NodeMask = 0;
@@ -540,6 +541,11 @@ void CGameFramework::ReBuildObject()
 				D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 				d3dDsvCPUDescriptorHandle.ptr += (::gnDsvDescriptorIncrementSize * 1);
 				m_pScene->CreateShaderResourceViewRtvs(m_pd3dDevice.Get(), m_pd3dCommandList.Get(), 1, pdxgiResourceFormats, d3dRtvCPUDescriptorHandle);
+				D3D12_CPU_DESCRIPTOR_HANDLE d3dCudaRtvCPUDescriptorHandle =
+					m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+				d3dCudaRtvCPUDescriptorHandle.ptr += (::gnRtvDescriptorIncrementSize * 5);
+				m_pScene->CreateShaderResourceViewCudaRtvs(m_pd3dDevice.Get(), m_pd3dCommandList.Get(),
+					DXGI_FORMAT_R16G16B16A16_FLOAT, d3dCudaRtvCPUDescriptorHandle);
 				m_pScene->CreateShaderResourceViewDsvs(m_pd3dDevice.Get(), m_pd3dCommandList.Get(), 5, d3dDsvCPUDescriptorHandle, m_pd3dDepthStencilBuffer.Get());
 				m_pScene->CreateShaderResourceViewAndUAVStructuredBuffer(m_pd3dDevice.Get(),m_pd3dCommandList.Get() );
 				break;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Scene.h"
+#include "DirectXCudaInterop.h"
 
 // Client-only gameplay scene. Scene owns the reusable rendering/resource
 // infrastructure; concrete game objects are intentionally not carried over.
@@ -10,6 +11,9 @@ private:
 	bool ComputeShaderSet = true;
 	bool CUDASet = false;
 	int BlurSet = 0;
+	CTexture* m_pCudaRenderTexture = nullptr;
+	CDirectXCudaInterop m_CudaInterop;
+	D3D12_CPU_DESCRIPTOR_HANDLE m_d3dCudaRtvCPUDescriptorHandle = {};
 
 public:
 	CMainScene(HWND hWnd, CGameTimer* timer) : CScene(hWnd, timer) {}
@@ -25,6 +29,9 @@ public:
 	bool OnProcessingKeyboardMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) override;
 	bool ProcessInput() override;
 	void BuildObjects(ID3D12Device* device, ID3D12GraphicsCommandList* commandList) override;
+	void CreateShaderResourceViewCudaRtvs(ID3D12Device* device,
+		ID3D12GraphicsCommandList* commandList, DXGI_FORMAT format,
+		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle) override;
 	void InitLights() override;
 	void CreateShaderVariables(ID3D12Device* device, ID3D12GraphicsCommandList* commandList) override;
 	void CreateSSAOKernel() override;

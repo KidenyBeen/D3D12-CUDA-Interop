@@ -16,6 +16,8 @@ public:
 	{
 		float m_fElapsedTime = 0.0f;
 		float m_fValueScale = 1.0f;
+		int m_nBlurRadius = 0;
+		float m_fBlurSigma = 0.0f;
 	};
 
 	CDirectXCudaInterop() = default;
@@ -24,6 +26,8 @@ public:
 	CDirectXCudaInterop& operator=(const CDirectXCudaInterop&) = delete;
 
 	bool Initialize(ID3D12Device* device, size_t bufferSize, int cudaDeviceOrdinal = 0);
+	bool InitializeTexture(ID3D12Device* device, ID3D12Resource* sharedTexture,
+		DXGI_FORMAT format, UINT width, UINT height, int cudaDeviceOrdinal = 0);
 	void Shutdown();
 	// Standalone smoke test used by GameFramework::OnCreate. It does not touch
 	// Scene or rendering resources and prints one CUDA addition result.
@@ -47,6 +51,7 @@ public:
 	bool WaitDirectXForCuda(ID3D12CommandQueue* directQueue, UINT64 value);
 
 	ID3D12Resource* GetSharedBuffer() const { return m_sharedBuffer.Get(); }
+	ID3D12Resource* GetSharedTexture() const { return m_sharedTexture.Get(); }
 	size_t GetSharedBufferSize() const { return m_bufferSize; }
 	void* GetCudaBuffer() const { return m_cudaBuffer; }
 	cudaStream_t GetCudaStream() const { return m_cudaStream; }
@@ -59,11 +64,13 @@ private:
 	bool CreateSharedBuffer(ID3D12Device* device, size_t bufferSize);
 	bool CreateSharedFences(ID3D12Device* device);
 	void ImportDXBufferToCuda(ID3D12Device* device);
+	void ImportDXTextureToCuda(ID3D12Device* device);
 	void ImportDXFencesToCuda(ID3D12Device* device);
 	bool SetHRESULTError(const char* operation, HRESULT result);
 
 	EExecutionMode m_executionMode = EExecutionMode::CudaShared;
 	ComPtr<ID3D12Resource> m_sharedBuffer;
+	ComPtr<ID3D12Resource> m_sharedTexture;
 	ComPtr<ID3D12Fence> m_dxToCudaFence;
 	ComPtr<ID3D12Fence> m_cudaToDxFence;
 	cudaExternalMemory_t m_cudaExternalMemory = nullptr;
@@ -71,7 +78,16 @@ private:
 	cudaExternalSemaphore_t m_dxWaitsForCuda = nullptr;
 	cudaStream_t m_cudaStream = nullptr;
 	void* m_cudaBuffer = nullptr;
+	cudaMipmappedArray_t m_cudaSharedMipmappedArray = nullptr;
+	cudaArray_t m_cudaSharedArray = nullptr;
+	cudaArray_t m_cudaTempArray = nullptr;
+	cudaSurfaceObject_t m_cudaSharedSurface = 0;
+	cudaSurfaceObject_t m_cudaTempSurface = 0;
 	size_t m_bufferSize = 0;
+	UINT m_nTextureWidth = 0;
+	UINT m_nTextureHeight = 0;
+	DXGI_FORMAT m_dxgiTextureFormat = DXGI_FORMAT_UNKNOWN;
+	bool m_bTextureInterop = false;
 	UINT64 m_nAllocationSize = 0;
 	UINT64 m_dxToCudaValue = 0;
 	UINT64 m_cudaToDxValue = 0;

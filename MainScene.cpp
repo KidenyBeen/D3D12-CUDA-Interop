@@ -28,10 +28,39 @@ void CMainScene::BuildObjects(ID3D12Device* device, ID3D12GraphicsCommandList* c
 		m_pDescriptorHeap = new CDescriptorHeap();
 	}
 
-	CreateCbvSrvDescriptorHeaps(device, 0, 12, 6);
+	// CUDA 공유 후처리 Texture의 SRV/UAV 슬롯을 각각 하나씩 추가한다.
+	CreateCbvSrvDescriptorHeaps(device, 0, 13, 7);
 	InitLights();
 
 	m_pTestObject = new CTestObject(device, commandList, m_pd3dRootSignature.Get());
+}
+
+void CMainScene::CreateShaderResourceViewCudaRtvs(ID3D12Device* device,
+	ID3D12GraphicsCommandList* commandList, DXGI_FORMAT format,
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle)
+{
+	// ReBuildObject에서만 호출되어 MainScene 진입 시 CUDA 공유 Texture를 구성한다.
+	m_pCudaRenderTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	D3D12_CLEAR_VALUE clearValue = { format, { 0.0f, 0.0f, 0.0f, 1.0f } };
+	m_pCudaRenderTexture->CreateSharedTexture(device, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT,
+		format, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+		D3D12_RESOURCE_STATE_COMMON, &clearValue, RESOURCE_TEXTURE2D, 0);
+
+	DXGI_FORMAT viewFormats[1] = { format };
+	CreateUnorderedAccessView(device, m_pCudaRenderTexture, viewFormats, 0, 4);
+	CreateShaderResourceViews(device, m_pCudaRenderTexture, 0, 19);
+
+	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+	rtvDesc.Format = format;
+	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+	rtvDesc.Texture2D.MipSlice = 0;
+	rtvDesc.Texture2D.PlaneSlice = 0;
+	device->CreateRenderTargetView(m_pCudaRenderTexture->GetResource(0).Get(), &rtvDesc, rtvHandle);
+	m_d3dCudaRtvCPUDescriptorHandle = rtvHandle;
+
+	// DX12 View 생성이 끝난 동일 리소스를 CUDA surface로 가져온다.
+	m_CudaInterop.InitializeTexture(device, m_pCudaRenderTexture->GetResource(0).Get(),
+		format, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 }
 
 void CMainScene::InitLights() { CScene::InitLights(); }
@@ -39,6 +68,9 @@ void CMainScene::CreateShaderVariables(ID3D12Device* device, ID3D12GraphicsComma
 void CMainScene::CreateSSAOKernel() { CScene::CreateSSAOKernel(); }
 void CMainScene::ReleaseObjects()
 {
+	m_CudaInterop.Shutdown();
+	delete m_pCudaRenderTexture;
+	m_pCudaRenderTexture = nullptr;
 	delete m_pTestObject;
 	m_pTestObject = nullptr;
 	CScene::ReleaseObjects();

@@ -443,6 +443,9 @@ public: //오브젝트 풀링과 오브젝트 위한 묶음
 		//Render Target view와 Srv를 동시에 연결해주는 함수
 		void CreateShaderResourceViewRtvs(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
 			UINT nRenderTargets, DXGI_FORMAT* pdxgiFormats, D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle);
+		virtual void CreateShaderResourceViewCudaRtvs(ID3D12Device* pd3dDevice,
+			ID3D12GraphicsCommandList* pd3dCommandList, DXGI_FORMAT dxgiFormat,
+			D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle) {}
 
 		void CreateShaderResourceViewAndUAVStructuredBuffer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 

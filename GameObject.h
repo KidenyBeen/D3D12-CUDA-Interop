@@ -149,6 +149,11 @@ public:
 
 	ComPtr<ID3D12Resource> CreateTexture(ID3D12Device* pd3dDevice, UINT nWidth, UINT nHeight, DXGI_FORMAT dxgiFormat, 
 		D3D12_RESOURCE_FLAGS d3dResourceFlags, D3D12_RESOURCE_STATES d3dResourceStates, D3D12_CLEAR_VALUE* pd3dClearValue, UINT nResourceType, UINT nIndex);
+	// CUDA 외부 메모리로 내보낼 수 있도록 SHARED Heap에 텍스처를 생성한다.
+	ComPtr<ID3D12Resource> CreateSharedTexture(ID3D12Device* pd3dDevice, UINT nWidth, UINT nHeight,
+		DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS d3dResourceFlags,
+		D3D12_RESOURCE_STATES d3dResourceStates, D3D12_CLEAR_VALUE* pd3dClearValue,
+		UINT nResourceType, UINT nIndex);
 	void AddRef() { m_nReferences++; }
 	void Release() { if (--m_nReferences <= 0) delete this; }
 
