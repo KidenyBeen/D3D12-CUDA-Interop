@@ -75,8 +75,8 @@ private:
 	//그래픽스 파이프라인 상태 객체에 대한 인터페이스 포인터
 
 	ComPtr<ID3D12Fence>	m_pd3dFence;	//CommandList 관련 동기화에 사용하는거지
-	//UINT64 	m_nFenceValue;
-	UINT64  m_nFenceValue[m_nSwapChainBuffers];	// 후면 버퍼마다 펜스를 따로 지정하기 위해서 이렇게 변경.
+	// 하나의 Fence에는 Queue 제출 순서와 동일하게 계속 증가하는 값을 사용해야 한다.
+	UINT64 m_nFenceValue = 0;
 	HANDLE	m_hFenceEvent;
 	//펜스 인터페이스 포인터, 펜스의 값, 이벤트 핸들
 

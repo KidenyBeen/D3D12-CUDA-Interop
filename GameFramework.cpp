@@ -7,10 +7,7 @@ CGameFramework::CGameFramework()
 {
 	//예제에는 null값을 다 집어넣는데 나는 ComPtr을 썼으므로 자동 초기화 된다.
 
-	//m_nFenceValue = 0;
-
-	for (int i = 0; i < m_nSwapChainBuffers; i++)	//펜스의 값을 0으로 초반의 초기화
-		m_nFenceValue[i] = 0;
+	m_nFenceValue = 0;
 	m_hFenceEvent = nullptr;
 
 	m_pScene = nullptr;
@@ -209,8 +206,7 @@ void CGameFramework::CreateDirect3dDevice()
 		D3D12_FENCE_FLAG_NONE,
 		IID_PPV_ARGS(&m_pd3dFence));
 
-	m_nFenceValue[0] = 0;
-	m_nFenceValue[1] = 0;
+	m_nFenceValue = 0;
 
 	m_hFenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 
@@ -368,8 +364,8 @@ void CGameFramework::CreateRtvAndDsvDescriptorHeaps()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;
 	::ZeroMemory(&d3dDescriptorHeapDesc, sizeof(D3D12_DESCRIPTOR_HEAP_DESC));
-	d3dDescriptorHeapDesc.NumDescriptors = m_nSwapChainBuffers + 1 + 1 + 1 + 1;
-	// SwapChain 2개 + 후처리 RTV 3개 + CUDA 공유 RTV 1개
+	d3dDescriptorHeapDesc.NumDescriptors = m_nSwapChainBuffers + 1 + 1 + 1 + 2;
+	// SwapChain 2개 + 후처리 RTV 3개 + CUDA 공유 원본/Compute Temp RTV 2개
 	d3dDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;	//RTV로 DescriptorHeap을 사용한다는 의미
 	d3dDescriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	d3dDescriptorHeapDesc.NodeMask = 0;
@@ -492,7 +488,11 @@ void CGameFramework::BuildObject()
 	//if (m_pScene) m_pScene->BuildObjects(m_pd3dDevice.Get());	// Scene에 오브젝트들을 생성하는 과정.
 
 	//씬이 존재하면 씬 내부에 오브젝트들을 생성한다.
-	if (m_pScene) m_pScene->BuildObjects(m_pd3dDevice.Get(), m_pd3dCommandList.Get());
+	if (m_pScene)
+	{
+		m_pScene->SetCommandQueue(m_pd3dCommandQueue.Get());
+		m_pScene->BuildObjects(m_pd3dDevice.Get(), m_pd3dCommandList.Get());
+	}
 
 	/*CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice.Get(),
 		m_pd3dCommandList.Get(), m_pScene->GetGraphicsRootSignature());
@@ -523,6 +523,7 @@ void CGameFramework::ReBuildObject()
 	//씬이 존재하면 씬 내부에 오브젝트들을 생성한다.
 	if (m_pScene)
 	{
+		m_pScene->SetCommandQueue(m_pd3dCommandQueue.Get());
 		m_pScene->BuildObjects(m_pd3dDevice.Get(), m_pd3dCommandList.Get());
 		int n = CSceneManager::GetInstance().GetSceneNumber();
 		switch (n)
@@ -545,7 +546,7 @@ void CGameFramework::ReBuildObject()
 					m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 				d3dCudaRtvCPUDescriptorHandle.ptr += (::gnRtvDescriptorIncrementSize * 5);
 				m_pScene->CreateShaderResourceViewCudaRtvs(m_pd3dDevice.Get(), m_pd3dCommandList.Get(),
-					DXGI_FORMAT_R16G16B16A16_FLOAT, d3dCudaRtvCPUDescriptorHandle);
+					DXGI_FORMAT_R8G8B8A8_UNORM, d3dCudaRtvCPUDescriptorHandle);
 				m_pScene->CreateShaderResourceViewDsvs(m_pd3dDevice.Get(), m_pd3dCommandList.Get(), 5, d3dDsvCPUDescriptorHandle, m_pd3dDepthStencilBuffer.Get());
 				m_pScene->CreateShaderResourceViewAndUAVStructuredBuffer(m_pd3dDevice.Get(),m_pd3dCommandList.Get() );
 				break;
@@ -707,7 +708,7 @@ void CGameFramework::WaitForGpuComplete()
 	//m_nFenceValue++;	//CPU 펜스의 값을 증가한다.
 	//const UINT64 nFence = m_nFenceValue;	//변경되기 이전
 
-	const UINT64 nFence = ++m_nFenceValue[m_nSwapChainBufferIndex];	//변경된 이후 (따라하기 06 이후)
+	const UINT64 nFence = ++m_nFenceValue;
 	HRESULT hResult = m_pd3dCommandQueue->Signal(m_pd3dFence.Get(), nFence);
 	//GPU가 펜스의 값을 설정하는 명령을 명령 큐에 추가한다.
 
@@ -732,7 +733,7 @@ void CGameFramework::MoveToNextFrame()
 {
 	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
 
-	const UINT64 nFenceValue = ++m_nFenceValue[m_nSwapChainBufferIndex];
+	const UINT64 nFenceValue = ++m_nFenceValue;
 	HRESULT hResult = m_pd3dCommandQueue->Signal(m_pd3dFence.Get(), nFenceValue);
 
 	if (m_pd3dFence->GetCompletedValue() < nFenceValue)
@@ -822,10 +823,12 @@ void CGameFramework::FrameAdvance()
 	//if (m_pScene) m_pScene->Render(m_pd3dCommandList.Get());	//Render를 처리한다
 	if (m_pScene)
 	{
-		
+		m_pScene->SetPostProcessOutputResource(
+			m_ppd3dRenderTargetBuffers[m_nSwapChainBufferIndex].Get());
 		m_pScene->OnPreRender(m_pd3dCommandList.Get(), 1, &m_pd3dRTVCPUHandles[m_nSwapChainBufferIndex], &d3dDsvDescriptorHandle, m_pCamera);
 		m_pScene->Render(m_pd3dCommandList.Get(), m_pCamera);	//Render를 처리한다
-		m_pScene->OnPostRender(m_pd3dCommandList.Get(), 1, &m_pd3dRTVCPUHandles[m_nSwapChainBufferIndex], &d3dDsvDescriptorHandle, m_pCamera);
+		m_pScene->OnPostRender(m_pd3dCommandList.Get(), m_pd3dCommandQueue.Get(), 1,
+			&m_pd3dRTVCPUHandles[m_nSwapChainBufferIndex], &d3dDsvDescriptorHandle, m_pCamera);
 	}
 
 	GUIProcess(); //

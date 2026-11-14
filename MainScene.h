@@ -8,12 +8,21 @@
 class CMainScene final : public CScene
 {
 private:
-	bool ComputeShaderSet = true;
-	bool CUDASet = false;
-	int BlurSet = 0;
+	enum class ERenderingMethod
+	{
+		Default = 0,
+		ComputeShader,
+		Cuda
+	};
+
+	ERenderingMethod m_eRenderingMethod = ERenderingMethod::Default;
+	int m_nBlurSet = 0;
 	CTexture* m_pCudaRenderTexture = nullptr;
+	CPostProcessingObject* m_pPostProcessingObject = nullptr;
 	CDirectXCudaInterop m_CudaInterop;
+	ComPtr<ID3D12CommandAllocator> m_pd3dCudaPostCommandAllocator;
 	D3D12_CPU_DESCRIPTOR_HANDLE m_d3dCudaRtvCPUDescriptorHandle = {};
+	D3D12_CPU_DESCRIPTOR_HANDLE m_d3dCudaTempRtvCPUDescriptorHandle = {};
 
 public:
 	CMainScene(HWND hWnd, CGameTimer* timer) : CScene(hWnd, timer) {}
@@ -44,9 +53,11 @@ public:
 		D3D12_CPU_DESCRIPTOR_HANDLE* rtvHandles, D3D12_CPU_DESCRIPTOR_HANDLE* dsvHandle,
 		CCamera* camera) override;
 	void Render(ID3D12GraphicsCommandList* commandList, CCamera* camera) override;
-	void OnPostRender(ID3D12GraphicsCommandList* commandList, int renderTargetCount,
+	void OnPostRender(ID3D12GraphicsCommandList* commandList,
+		ID3D12CommandQueue* commandQueue, int renderTargetCount,
 		D3D12_CPU_DESCRIPTOR_HANDLE* rtvHandles, D3D12_CPU_DESCRIPTOR_HANDLE* dsvHandle,
 		CCamera* camera) override;
+	bool IsCudaPostProcessEnabled() const override;
 	void UpdateShaderVariables(ID3D12GraphicsCommandList* commandList) override;
 	void OnGUI(ImGuiIO* gui) override;
 	void OnEnter() override;

@@ -143,6 +143,8 @@ protected:
 
 	ComPtr<ID3D12Device> m_cpd3dDevice;
 	ComPtr<ID3D12GraphicsCommandList> m_cpd3dCommandList;
+	ID3D12CommandQueue* m_pd3dCommandQueue = nullptr;
+	ID3D12Resource* m_pd3dPostProcessOutputResource = nullptr;
 
 	//CTexture* m_pRenderTexture = NULL; // RTV, SRV, UAR 등등 활용할때 사용할 친구
 	ComPtr<ID3D12Resource> m_cpd3dcbImGui_Info;
@@ -290,10 +292,15 @@ public:
 
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);	//Render를 할때 여러 카메라가 존재할 수 있고, 카메라에 따라 값이 달라질 수 있음으로 Camera를 파라미터로 받는다.
 	//최종적으로 출력 및 포스트 프로세싱 동작을 위한 Render 
-	virtual void OnPostRender(ID3D12GraphicsCommandList* pd3dCommandList, int nRenderTargets, D3D12_CPU_DESCRIPTOR_HANDLE* pd3dRtvCPUHandles
-		, D3D12_CPU_DESCRIPTOR_HANDLE* pd3dDsvCPUHandle,CCamera* pCamera);
+	virtual void OnPostRender(ID3D12GraphicsCommandList* pd3dCommandList,
+		ID3D12CommandQueue* pd3dCommandQueue, int nRenderTargets,
+		D3D12_CPU_DESCRIPTOR_HANDLE* pd3dRtvCPUHandles,
+		D3D12_CPU_DESCRIPTOR_HANDLE* pd3dDsvCPUHandle, CCamera* pCamera);
+	virtual bool IsCudaPostProcessEnabled() const { return false; }
 
 	virtual void OnGUI(ImGuiIO* pGuiIO); //Scene마다 GUI 설정을 달리 하기 위해서
+	virtual void SetCommandQueue(ID3D12CommandQueue* pd3dCommandQueue) { m_pd3dCommandQueue = pd3dCommandQueue; }
+	virtual void SetPostProcessOutputResource(ID3D12Resource* pd3dResource) { m_pd3dPostProcessOutputResource = pd3dResource; }
 
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	

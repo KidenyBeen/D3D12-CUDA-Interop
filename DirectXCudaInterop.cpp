@@ -69,9 +69,9 @@ bool CDirectXCudaInterop::InitializeTexture(ID3D12Device* device, ID3D12Resource
 		m_lastError = "InitializeTexture requires a device, shared texture, width and height.";
 		return false;
 	}
-	if (format != DXGI_FORMAT_R16G16B16A16_FLOAT)
+	if (format != DXGI_FORMAT_R8G8B8A8_UNORM)
 	{
-		m_lastError = "CUDA texture interop currently supports R16G16B16A16_FLOAT only.";
+		m_lastError = "CUDA texture interop currently supports R8G8B8A8_UNORM only.";
 		return false;
 	}
 
@@ -217,10 +217,10 @@ void CDirectXCudaInterop::ImportDXTextureToCuda(ID3D12Device* device)
 	checkCudaErrors(cudaImportExternalMemory(&m_cudaExternalMemory, &memoryDesc));
 	CloseHandle(hSharedHandle);
 
-	// 현재 후처리 공유 포맷은 R16G16B16A16_FLOAT를 기준으로 한다.
+	// 현재 후처리 공유 포맷은 R8G8B8A8_UNORM을 기준으로 한다.
 	cudaChannelFormatDesc channelDesc = {};
-	channelDesc.x = 16; channelDesc.y = 16; channelDesc.z = 16; channelDesc.w = 16;
-	channelDesc.f = cudaChannelFormatKindFloat;
+	channelDesc.x = 8; channelDesc.y = 8; channelDesc.z = 8; channelDesc.w = 8;
+	channelDesc.f = cudaChannelFormatKindUnsigned;
 
 	cudaExternalMemoryMipmappedArrayDesc arrayDesc = {};
 	arrayDesc.formatDesc = channelDesc;

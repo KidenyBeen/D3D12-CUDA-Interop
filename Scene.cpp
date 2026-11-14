@@ -705,10 +705,17 @@ void CScene::PrePareShadowMap(ID3D12GraphicsCommandList* pd3dCommandList)
 
 }
 
-void CScene::OnPostRender(ID3D12GraphicsCommandList* pd3dCommandList, int nRenderTargets, D3D12_CPU_DESCRIPTOR_HANDLE* pd3dRtvCPUHandles
-	, D3D12_CPU_DESCRIPTOR_HANDLE* pd3dDsvCPUHandle, CCamera* pCamera)
+void CScene::OnPostRender(ID3D12GraphicsCommandList* pd3dCommandList,
+	ID3D12CommandQueue* pd3dCommandQueue, int nRenderTargets,
+	D3D12_CPU_DESCRIPTOR_HANDLE* pd3dRtvCPUHandles,
+	D3D12_CPU_DESCRIPTOR_HANDLE* pd3dDsvCPUHandle, CCamera* pCamera)
 {
-
+	(void)pd3dCommandList;
+	(void)pd3dCommandQueue;
+	(void)nRenderTargets;
+	(void)pd3dRtvCPUHandles;
+	(void)pd3dDsvCPUHandle;
+	(void)pCamera;
 }
 
 void CScene::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)

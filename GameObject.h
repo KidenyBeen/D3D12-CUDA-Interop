@@ -731,140 +731,6 @@ public:
 
 
 //////////////////////////////////////////////////
-//
-
-class CCropObject : public CDefaultGameObject
-{
-public:
-	CCropObject() {};
-	CCropObject(ID3D12Device* pd3dDevice,
-		ID3D12GraphicsCommandList* pd3dCommandList,
-		ID3D12RootSignature* pd3dGraphicsRootSignature,
-		CLoadedModelInfo* pModel) :CDefaultGameObject() {};
-
-	virtual ~CCropObject() {};
-
-	virtual void Init(ID3D12Device* pd3dDevice,
-		ID3D12GraphicsCommandList* pd3dCommandList,
-		ID3D12RootSignature* pd3dGraphicsRootSignature,
-		CLoadedModelInfo* pModel) {};
-
-	virtual void SetOBB(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList) {};
-
-	void CCropObject::ChangeModel(CLoadedModelInfo* pNewModel);
-	void SetGrowth(float num) { m_fGrowth = num; }
-	float GetGrowth() { return m_fGrowth; }
-
-	void AddHP(int num) { m_nHP += num; }
-	void SetHP(int num) { m_nHP = num; }
-	int GetHP() { return m_nHP; }
-
-protected:
-	float m_fGrowth = 0.0f;
-	int m_nHP = 1; // 체력
-
-
-};
-
-//////////////////////////////////////////////////
-//
-// 옥수수
-class CCornObject : public CCropObject
-{
-public:
-	CCornObject() {};
-	CCornObject(ID3D12Device* pd3dDevice,
-		ID3D12GraphicsCommandList* pd3dCommandList,
-		ID3D12RootSignature* pd3dGraphicsRootSignature,
-		CLoadedModelInfo* pModel);
-
-	virtual ~CCornObject();
-
-	virtual void Init(ID3D12Device* pd3dDevice,
-		ID3D12GraphicsCommandList* pd3dCommandList,
-		ID3D12RootSignature* pd3dGraphicsRootSignature,
-		CLoadedModelInfo* pModel);
-
-	virtual void SetOBB(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-
-
-};
-
-
-//////////////////////////////////////////////////
-// 감자
-class CPotatoObject : public CCropObject
-{
-public:
-	CPotatoObject() {};
-	CPotatoObject(ID3D12Device* pd3dDevice,
-		ID3D12GraphicsCommandList* pd3dCommandList,
-		ID3D12RootSignature* pd3dGraphicsRootSignature,
-		CLoadedModelInfo* pModel);
-
-	virtual ~CPotatoObject();
-
-	void Init(ID3D12Device* pd3dDevice,
-		ID3D12GraphicsCommandList* pd3dCommandList,
-		ID3D12RootSignature* pd3dGraphicsRootSignature,
-		CLoadedModelInfo* pModel);
-
-	virtual void SetOBB(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-
-
-};
-
-
-//////////////////////////////////////////////////
-// 호박
-class CPumpkinObject : public CCropObject
-{
-public:
-	CPumpkinObject() {};
-	CPumpkinObject(ID3D12Device* pd3dDevice,
-		ID3D12GraphicsCommandList* pd3dCommandList,
-		ID3D12RootSignature* pd3dGraphicsRootSignature,
-		CLoadedModelInfo* pModel);
-
-	virtual ~CPumpkinObject();
-
-	void Init(ID3D12Device* pd3dDevice,
-		ID3D12GraphicsCommandList* pd3dCommandList,
-		ID3D12RootSignature* pd3dGraphicsRootSignature,
-		CLoadedModelInfo* pModel);
-
-	virtual void SetOBB(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-
-
-};
-
-
-//////////////////////////////////////////////////
-// 토마토
-class CTomatoObject : public CCropObject
-{
-public:
-	CTomatoObject() {};
-	CTomatoObject(ID3D12Device* pd3dDevice,
-		ID3D12GraphicsCommandList* pd3dCommandList,
-		ID3D12RootSignature* pd3dGraphicsRootSignature,
-		CLoadedModelInfo* pModel);
-
-	virtual ~CTomatoObject();
-
-	void Init(ID3D12Device* pd3dDevice,
-		ID3D12GraphicsCommandList* pd3dCommandList,
-		ID3D12RootSignature* pd3dGraphicsRootSignature,
-		CLoadedModelInfo* pModel);
-
-	virtual void SetOBB(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-
-
-
-};
-
-
-//////////////////////////////////////////////////
 // 간이 밭(Log Planter)
 enum class ECropState
 {
@@ -1232,6 +1098,7 @@ public:
 	CPostProcessingObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual ~CPostProcessingObject();
 
+	void SetPostProcessTexture(CTexture* pTexture);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
 };
 

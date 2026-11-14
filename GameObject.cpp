@@ -2108,7 +2108,7 @@ CTestObject::CTestObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd
 	// MainScene RootParameter 4번의 SRV Table(t1)에 테스트 Texture를 연결한다.
 	CScene::CreateShaderResourceViews(pd3dDevice, pTestTexture, 0, 4);
 
-	CMaterial* pTestMaterial = new CMaterial(1);
+	CMaterial* pTestMaterial = new CMaterial();
 	pTestMaterial->SetTexture(pTestTexture);
 	pTestMaterial->SetShader(new CTestShader());
 	SetMaterial(0, pTestMaterial);
@@ -2283,167 +2283,6 @@ void CHeightMapTerrain::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCame
 }
 
 
-
-///////////////////////////////////////////////////
-///
-CCornObject::CCornObject(ID3D12Device* pd3dDevice,
-	ID3D12GraphicsCommandList* pd3dCommandList,
-	ID3D12RootSignature* pd3dGraphicsRootSignature,
-	CLoadedModelInfo* pModel)
-	: CCropObject()
-{
-	SetOBB(pd3dDevice, pd3dCommandList);
-	Init(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pModel);
-}
-
-CCornObject::~CCornObject()
-{
-}
-
-void CCornObject::Init(ID3D12Device* pd3dDevice,
-	ID3D12GraphicsCommandList* pd3dCommandList,
-	ID3D12RootSignature* pd3dGraphicsRootSignature,
-	CLoadedModelInfo* pModel)
-{
-	CLoadedModelInfo* pDefaultModel = pModel;
-	SetChild(pDefaultModel->m_pModelRootObject, true);
-}
-
-void CCornObject::SetOBB(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
-{
-	m_obbBox.Extents = XMFLOAT3(0.1f, 0.1f, 0.1f); //
-	m_bIsBoxCollision = true; //충돌 계산을 활성화 한다 ==> 이걸 해야 우선 update해주고 그런거 다 활성화 시켜둠
-
-	float fWidth = m_obbBox.Extents.x * 2.0f;
-	float fHeight = m_obbBox.Extents.y * 2.0f;
-	float fDepth = m_obbBox.Extents.z * 2.0f;
-
-
-	m_xmf3OBBOffset = XMFLOAT3(0.0f, 0.6f, 0.0f);
-
-	//m_pOBBMesh = new CBoundingCubeMesh(pd3dDevice, pd3dCommandList, fWidth, fHeight, fDepth);
-}
-///////////////////////////////////////////////////
-///
-
-CPotatoObject::CPotatoObject(ID3D12Device* pd3dDevice,
-	ID3D12GraphicsCommandList* pd3dCommandList,
-	ID3D12RootSignature* pd3dGraphicsRootSignature,
-	CLoadedModelInfo* pModel)
-	: CCropObject()
-{
-	SetOBB(pd3dDevice, pd3dCommandList);
-	Init(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pModel);
-}
-
-CPotatoObject::~CPotatoObject()
-{
-}
-
-void CPotatoObject::Init(ID3D12Device* pd3dDevice,
-	ID3D12GraphicsCommandList* pd3dCommandList,
-	ID3D12RootSignature* pd3dGraphicsRootSignature,
-	CLoadedModelInfo* pModel)
-{
-	CLoadedModelInfo* pDefaultModel = pModel;
-	SetChild(pDefaultModel->m_pModelRootObject, true);
-}
-
-void CPotatoObject::SetOBB(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
-{
-	m_obbBox.Extents = XMFLOAT3(0.1f, 0.1f, 0.1f); //
-	m_bIsBoxCollision = true; //충돌 계산을 활성화 한다 ==> 이걸 해야 우선 update해주고 그런거 다 활성화 시켜둠
-
-	float fWidth = m_obbBox.Extents.x * 2.0f;
-	float fHeight = m_obbBox.Extents.y * 2.0f;
-	float fDepth = m_obbBox.Extents.z * 2.0f;
-
-
-	m_xmf3OBBOffset = XMFLOAT3(0.0f, 0.6f, 0.0f);
-
-	//m_pOBBMesh = new CBoundingCubeMesh(pd3dDevice, pd3dCommandList, fWidth, fHeight, fDepth);
-}
-
-///////////////////////////////////////////////////
-///
-
-CPumpkinObject::CPumpkinObject(ID3D12Device* pd3dDevice,
-	ID3D12GraphicsCommandList* pd3dCommandList,
-	ID3D12RootSignature* pd3dGraphicsRootSignature,
-	CLoadedModelInfo* pModel)
-	: CCropObject()
-{
-	SetOBB(pd3dDevice, pd3dCommandList);
-	Init(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pModel);
-}
-
-CPumpkinObject::~CPumpkinObject()
-{
-}
-
-void CPumpkinObject::Init(ID3D12Device* pd3dDevice,
-	ID3D12GraphicsCommandList* pd3dCommandList,
-	ID3D12RootSignature* pd3dGraphicsRootSignature,
-	CLoadedModelInfo* pModel)
-{
-	CLoadedModelInfo* pDefaultModel = pModel;
-	SetChild(pDefaultModel->m_pModelRootObject, true);
-}
-
-void CPumpkinObject::SetOBB(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
-{
-	m_obbBox.Extents = XMFLOAT3(0.1f, 0.1f, 0.1f); //
-	m_bIsBoxCollision = true; //충돌 계산을 활성화 한다 ==> 이걸 해야 우선 update해주고 그런거 다 활성화 시켜둠
-
-	float fWidth = m_obbBox.Extents.x * 2.0f;
-	float fHeight = m_obbBox.Extents.y * 2.0f;
-	float fDepth = m_obbBox.Extents.z * 2.0f;
-
-
-	m_xmf3OBBOffset = XMFLOAT3(0.0f, 0.6f, 0.0f);
-
-	//m_pOBBMesh = new CBoundingCubeMesh(pd3dDevice, pd3dCommandList, fWidth, fHeight, fDepth);
-}
-///////////////////////////////////////////////////
-///
-
-CTomatoObject::CTomatoObject(ID3D12Device* pd3dDevice,
-	ID3D12GraphicsCommandList* pd3dCommandList,
-	ID3D12RootSignature* pd3dGraphicsRootSignature,
-	CLoadedModelInfo* pModel)
-	: CCropObject()
-{
-	SetOBB(pd3dDevice, pd3dCommandList);
-	Init(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pModel);
-}
-
-CTomatoObject::~CTomatoObject()
-{
-}
-
-void CTomatoObject::Init(ID3D12Device* pd3dDevice,
-	ID3D12GraphicsCommandList* pd3dCommandList,
-	ID3D12RootSignature* pd3dGraphicsRootSignature,
-	CLoadedModelInfo* pModel)
-{
-	CLoadedModelInfo* pDefaultModel = pModel;
-	SetChild(pDefaultModel->m_pModelRootObject, true);
-}
-
-void CTomatoObject::SetOBB(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
-{
-	m_obbBox.Extents = XMFLOAT3(0.1f, 0.1f, 0.1f); //
-	m_bIsBoxCollision = true; //충돌 계산을 활성화 한다 ==> 이걸 해야 우선 update해주고 그런거 다 활성화 시켜둠
-
-	float fWidth = m_obbBox.Extents.x * 2.0f;
-	float fHeight = m_obbBox.Extents.y * 2.0f;
-	float fDepth = m_obbBox.Extents.z * 2.0f;
-
-
-	m_xmf3OBBOffset = XMFLOAT3(0.0f, 0.6f, 0.0f);
-
-	//m_pOBBMesh = new CBoundingCubeMesh(pd3dDevice, pd3dCommandList, fWidth, fHeight, fDepth);
-}
 
 ///////////////////////////////////////////////////
 ///
@@ -3065,6 +2904,16 @@ CPostProcessingObject::~CPostProcessingObject()
 {
 }
 
+void CPostProcessingObject::SetPostProcessTexture(CTexture* pTexture)
+{
+	if (pTexture && m_nMaterials > 0 && m_ppMaterials[0] && m_ppMaterials[0]->m_ppTextures[0])
+	{
+		// 리소스 소유권은 MainScene에 두고, 기존 PostProcessing용 Texture에는 SRV 핸들만 연결한다.
+		m_ppMaterials[0]->m_ppTextures[0]->SetGpuDescriptorHandle(0, pTexture->GetGpuDescriptorHandle(0));
+		m_ppMaterials[0]->m_ppTextures[0]->SetRootParameterIndex(0, 19);
+	}
+}
+
 //
 void CPostProcessingObject::Render(ID3D12GraphicsCommandList* pd3dCommandList , CCamera* pCamera)
 {
@@ -3402,29 +3251,6 @@ void CPunchParticleObject::SetParticleState(
 
 }
 
-//TODO : 오류 생기면 점검 필요
-void CCropObject::ChangeModel(CLoadedModelInfo* pNewModel)
-{
-	if (!pNewModel)
-		return;
-
-	// 이미 같은 모델이면 스킵
-	if (m_pChild == pNewModel->m_pModelRootObject)
-		return;
-
-	// 기존 모델 제거
-	if (m_pChild)
-	{
-		//m_pChild->Release();
-		m_pChild = nullptr;
-	}
-
-	// 새 모델 장착
-	SetChild(pNewModel->m_pModelRootObject, false);
-
-	//모델이 들고 있는 타입으로 오브젝트 타입 갱신
-	SetType(pNewModel->m_ObjectType);
-}
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void CDefulatHumanAnimationCallbackHandler::HandleCallback(void* pCallbackData, float fTrackPosition)

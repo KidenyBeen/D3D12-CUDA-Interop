@@ -593,16 +593,6 @@ void CPlayerIdleSetCallbackHandler::HandleCallback(void* pCallbackData, float fT
 		pGrass->AddHP(-1);
 		break;
 	}
-	case EObjectModelType::Corn03:
-	case EObjectModelType::Potato03:
-	case EObjectModelType::Pumpkin03:
-	case EObjectModelType::Tomato03:
-	{
-		CCropObject* pCrop = reinterpret_cast<CCropObject*>(pTarget);
-		pCrop->AddHP(-1);
-		break;
-	}
-		return; 
 
 	default:
 		return;

@@ -1,5 +1,4 @@
 #include <cuda_runtime.h>
-#include <cuda_fp16.h>
 #include "helper_cuda.h"
 
 // DX12 공유 버퍼에 적용할 기본 CUDA 커널 템플릿이다.
@@ -29,20 +28,25 @@ extern "C" cudaError_t LaunchDirectXCudaInteropKernel(
 	return cudaSuccess;
 }
 
-__device__ float4 HalfPixelToFloat4(ushort4 pixel)
+__device__ float4 UnormPixelToFloat4(uchar4 pixel)
 {
-	return make_float4(__half2float(__ushort_as_half(pixel.x)),
-		__half2float(__ushort_as_half(pixel.y)),
-		__half2float(__ushort_as_half(pixel.z)),
-		__half2float(__ushort_as_half(pixel.w)));
+	constexpr float unormScale = 1.0f / 255.0f;
+	return make_float4(pixel.x * unormScale, pixel.y * unormScale,
+		pixel.z * unormScale, pixel.w * unormScale);
 }
 
-__device__ ushort4 Float4ToHalfPixel(float4 pixel)
+__device__ float ClampUnorm(float value)
 {
-	return make_ushort4(__half_as_ushort(__float2half_rn(pixel.x)),
-		__half_as_ushort(__float2half_rn(pixel.y)),
-		__half_as_ushort(__float2half_rn(pixel.z)),
-		__half_as_ushort(__float2half_rn(pixel.w)));
+	return fminf(1.0f, fmaxf(0.0f, value));
+}
+
+__device__ uchar4 Float4ToUnormPixel(float4 pixel)
+{
+	return make_uchar4(
+		static_cast<unsigned char>(ClampUnorm(pixel.x) * 255.0f + 0.5f),
+		static_cast<unsigned char>(ClampUnorm(pixel.y) * 255.0f + 0.5f),
+		static_cast<unsigned char>(ClampUnorm(pixel.z) * 255.0f + 0.5f),
+		static_cast<unsigned char>(ClampUnorm(pixel.w) * 255.0f + 0.5f));
 }
 
 __device__ float GaussianWeight(int offset, float sigma)
@@ -64,16 +68,16 @@ __global__ void GaussianBlurHorizontalKernel(cudaSurfaceObject_t sharedSurface,
 	{
 		const int sampleX = max(0, min((int)nWidth - 1, (int)x + offset));
 		const float weight = GaussianWeight(offset, fSigma);
-		const ushort4 pixel = surf2Dread<ushort4>(
-			sharedSurface, sampleX * sizeof(ushort4), y);
-		const float4 sample = HalfPixelToFloat4(pixel);
+		const uchar4 pixel = surf2Dread<uchar4>(
+			sharedSurface, sampleX * sizeof(uchar4), y);
+		const float4 sample = UnormPixelToFloat4(pixel);
 		color.x += sample.x * weight; color.y += sample.y * weight;
 		color.z += sample.z * weight; color.w += sample.w * weight;
 		totalWeight += weight;
 	}
 	color.x /= totalWeight; color.y /= totalWeight;
 	color.z /= totalWeight; color.w /= totalWeight;
-	surf2Dwrite(Float4ToHalfPixel(color), tempSurface, x * sizeof(ushort4), y);
+	surf2Dwrite(Float4ToUnormPixel(color), tempSurface, x * sizeof(uchar4), y);
 
 }
 
@@ -91,16 +95,16 @@ __global__ void GaussianBlurVerticalKernel(cudaSurfaceObject_t tempSurface,
 	{
 		const int sampleY = max(0, min((int)nHeight - 1, (int)y + offset));
 		const float weight = GaussianWeight(offset, fSigma);
-		const ushort4 pixel = surf2Dread<ushort4>(
-			tempSurface, x * sizeof(ushort4), sampleY);
-		const float4 sample = HalfPixelToFloat4(pixel);
+		const uchar4 pixel = surf2Dread<uchar4>(
+			tempSurface, x * sizeof(uchar4), sampleY);
+		const float4 sample = UnormPixelToFloat4(pixel);
 		color.x += sample.x * weight; color.y += sample.y * weight;
 		color.z += sample.z * weight; color.w += sample.w * weight;
 		totalWeight += weight;
 	}
 	color.x /= totalWeight; color.y /= totalWeight;
 	color.z /= totalWeight; color.w /= totalWeight;
-	surf2Dwrite(Float4ToHalfPixel(color), sharedSurface, x * sizeof(ushort4), y);
+	surf2Dwrite(Float4ToUnormPixel(color), sharedSurface, x * sizeof(uchar4), y);
 }
 
 extern "C" cudaError_t LaunchDirectXCudaInteropTextureKernel(cudaSurfaceObject_t sharedSurface,
@@ -127,7 +131,9 @@ __global__ void CudaConsoleAddKernel(const int* pLeft, const int* pRight, int* p
 {
 	// CUDA 실행 여부만 확인하는 1개 스레드 덧셈 테스트이다.
 	if (blockIdx.x == 0 && threadIdx.x == 0)
+	{
 		*pResult = *pLeft + *pRight;
+	}
 }
 
 extern "C" cudaError_t RunDirectXCudaConsoleAdd(int nLeft, int nRight, int* pResult)
