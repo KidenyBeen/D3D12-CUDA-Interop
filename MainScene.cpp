@@ -28,8 +28,8 @@ void CMainScene::BuildObjects(ID3D12Device* device, ID3D12GraphicsCommandList* c
 		m_pDescriptorHeap = new CDescriptorHeap();
 	}
 
-	// CUDA 공유 후처리 Texture의 SRV/UAV 슬롯을 각각 하나씩 추가한다.
-	CreateCbvSrvDescriptorHeaps(device, 0, 13, 7);
+	// CUDA 공유 후처리 Texture와 CTestObject Albedo Texture의 SRV 슬롯을 추가한다.
+	CreateCbvSrvDescriptorHeaps(device, 0, 14, 7);
 	InitLights();
 
 	m_pTestObject = new CTestObject(device, commandList, m_pd3dRootSignature.Get());
@@ -103,7 +103,7 @@ void CMainScene::Render(ID3D12GraphicsCommandList* commandList, CCamera* camera)
 		OutputDebugStringW(L"[CMainScene] TestObject is null.\n");
 		return;
 	}
-
+	commandList->SetDescriptorHeaps(1, m_pDescriptorHeap->m_pd3dCbvSrvDescriptorHeap.GetAddressOf());
 	commandList->SetGraphicsRootSignature(m_pd3dRootSignature.Get());
 	m_pTestObject->Render(commandList, camera);
 }

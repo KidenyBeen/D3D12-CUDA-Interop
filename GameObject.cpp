@@ -2095,17 +2095,29 @@ CPlanObject::~CPlanObject()
 }
 
 CTestObject::CTestObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
-	ID3D12RootSignature* pd3dGraphicsRootSignature) : CGameObject()
+	ID3D12RootSignature* pd3dGraphicsRootSignature) : CGameObject(1)
 {
 	(void)pd3dGraphicsRootSignature;
 
 	SetMesh(new CPlanMesh(pd3dDevice, pd3dCommandList, 1, 1, 1.0f, 1.0f));
-	SetShader(new CTestShader());
+
+	CTexture* pTestTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
+	pTestTexture->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList,
+		L"Model/Textures/WoodRough_AL.dds", RESOURCE_TEXTURE2D, 0);
+
+	// MainScene RootParameter 4번의 SRV Table(t1)에 테스트 Texture를 연결한다.
+	CScene::CreateShaderResourceViews(pd3dDevice, pTestTexture, 0, 4);
+
+	CMaterial* pTestMaterial = new CMaterial(1);
+	pTestMaterial->SetTexture(pTestTexture);
+	pTestMaterial->SetShader(new CTestShader());
+	SetMaterial(0, pTestMaterial);
 }
 
 void CTestObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
-	CGameObject::Render(pd3dCommandList, pCamera, false, false, false, false);
+	// Material이 가진 Texture와 Shader를 함께 바인딩하는 렌더 경로를 사용한다.
+	CGameObject::Render(pd3dCommandList, pCamera, true, false, false, false);
 }
 
 

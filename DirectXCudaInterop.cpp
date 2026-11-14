@@ -258,8 +258,8 @@ void CDirectXCudaInterop::ImportDXFencesToCuda(ID3D12Device* device)
 	{
 		if (dxHandle)
 		{
-			CloseHandle(dxHandle)
-		}; 
+			CloseHandle(dxHandle);
+		}
 		if (cudaHandle)
 		{
 			CloseHandle(cudaHandle);

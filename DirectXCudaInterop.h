@@ -62,7 +62,7 @@ private:
 	void InitCuda(ID3D12Device* device, int cudaDeviceOrdinal);
 	void SetCudaDXDevice(int cudaDeviceOrdinal);
 	bool CreateSharedBuffer(ID3D12Device* device, size_t bufferSize);
-	bool CreateSharedFences(ID3D12Device* device);
+	bool CreateSharedFences(ID3D12Device* device); //Shared Fence를 만든다. 현재 단방향 2개의 Fence를 만든다.
 	void ImportDXBufferToCuda(ID3D12Device* device);
 	void ImportDXTextureToCuda(ID3D12Device* device);
 	void ImportDXFencesToCuda(ID3D12Device* device);
