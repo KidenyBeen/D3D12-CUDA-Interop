@@ -208,16 +208,21 @@ void CMainScene::OnPostRender(ID3D12GraphicsCommandList* commandList,
 			return;
 		}
 
+		if (camera)
+		{
+			// CommandList::Reset 이후에는 viewport/scissor를 다시 설정해야 한다.
+			camera->SetViewportsAndScissorRects(commandList);
+		}
 		commandList->OMSetRenderTargets(renderTargetCount, rtvHandles, TRUE, dsvHandle);
 		if (cudaResultReady && m_pPostProcessingObject)
 		{
-		/*	::SynchronizeResourceTransition(commandList, pSharedSource,
-				D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);*/
+			::SynchronizeResourceTransition(commandList, pSharedSource,
+				D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 			commandList->SetDescriptorHeaps(1, m_pDescriptorHeap->m_pd3dCbvSrvDescriptorHeap.GetAddressOf());
 			commandList->SetGraphicsRootSignature(m_pd3dRootSignature.Get());
 			m_pPostProcessingObject->Render(commandList, camera);
-			//::SynchronizeResourceTransition(commandList, pSharedSource,
-			//	D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COMMON);
+			::SynchronizeResourceTransition(commandList, pSharedSource,
+				D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COMMON);
 		}
 	}
 

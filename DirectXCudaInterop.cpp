@@ -319,10 +319,15 @@ bool CDirectXCudaInterop::ExecuteCuda(ID3D12CommandQueue* queue, const KernelPar
 	if (m_bTextureInterop)
 	{
 		// 실시간 DX12 렌더 결과로 보존 원본을 갱신한다.
-		checkCudaErrors(cudaMemcpy2DArrayToArrayAsync(
-			m_cudaOriginalArray, 0, 0, m_cudaSharedArray, 0, 0,
-			static_cast<size_t>(m_nTextureWidth) * sizeof(uchar4),
-			m_nTextureHeight, cudaMemcpyDeviceToDevice, m_cudaStream));
+		cudaMemcpy3DParms copyParameters = {};
+		copyParameters.srcArray = m_cudaSharedArray;
+		copyParameters.dstArray = m_cudaOriginalArray;
+		// CUDA Array 간 복사에서는 width가 바이트가 아니라 채널 원소 개수이다.
+		copyParameters.extent.width = m_nTextureWidth;
+		copyParameters.extent.height = m_nTextureHeight;
+		copyParameters.extent.depth = 1;
+		copyParameters.kind = cudaMemcpyDeviceToDevice;
+		checkCudaErrors(cudaMemcpy3DAsync(&copyParameters, m_cudaStream));
 		checkCudaErrors(LaunchDirectXCudaInteropTextureKernel(m_cudaSharedTexture,
 			m_cudaSharedSurface, m_cudaTempSurface, m_nTextureWidth, m_nTextureHeight,
 			parameters.m_nBlurRadius, parameters.m_fBlurSigma, m_cudaStream));
