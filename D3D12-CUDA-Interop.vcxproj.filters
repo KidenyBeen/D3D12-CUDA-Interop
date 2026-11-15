@@ -297,6 +297,9 @@
     <FxCompile Include="Shader\PS\TestPS.hlsl">
       <Filter>Shader\PS</Filter>
     </FxCompile>
+    <FxCompile Include="Shader\PS\PostProcessingTestPS.hlsl">
+      <Filter>Shader\PS</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="DirectXCudaInterop.cu" />

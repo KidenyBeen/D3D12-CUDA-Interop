@@ -480,7 +480,9 @@ void COBBShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCa
 //
 CPostProcessingShader::CPostProcessingShader()
 {
-	m_cpd3dMainPSO = CGraphicsCommon::GetInstance().m_cpd3dPostProcessingPSO;
+	//m_cpd3dMainPSO = CGraphicsCommon::GetInstance().m_cpd3dPostProcessingPSO;
+	//Test를 위한것
+	m_cpd3dMainPSO = CGraphicsCommon::GetInstance().m_cpd3dPostProcessingTestPSO;
 	//m_cpd3dNormalPSO = CGraphicsCommon::GetInstance().m_cpd3dBasicNormalPSO;
 	//m_cpd3dWirePSO = CGraphicsCommon::GetInstance().m_cpd3dBasicWirePSO;
 }

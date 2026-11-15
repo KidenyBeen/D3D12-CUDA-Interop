@@ -7,7 +7,8 @@
 extern "C" cudaError_t LaunchDirectXCudaInteropKernel(
 	void*, size_t, float, float, cudaStream_t);
 extern "C" cudaError_t LaunchDirectXCudaInteropTextureKernel(
-	cudaSurfaceObject_t, cudaSurfaceObject_t, UINT, UINT, int, float, cudaStream_t);
+	cudaTextureObject_t, cudaSurfaceObject_t, cudaSurfaceObject_t,
+	UINT, UINT, int, float, cudaStream_t);
 extern "C" cudaError_t RunDirectXCudaConsoleAdd(int, int, int*);
 
 namespace
@@ -114,16 +115,27 @@ void CDirectXCudaInterop::SetCudaDXDevice(int cudaDeviceOrdinal)
 void CDirectXCudaInterop::Shutdown()
 {
 	if (m_cudaStream) checkCudaErrors(cudaStreamSynchronize(m_cudaStream));
+	if (m_cudaSharedTexture)
+	{
+		checkCudaErrors(cudaDestroyTextureObject(m_cudaSharedTexture));
+	}
 	if (m_cudaTempSurface) checkCudaErrors(cudaDestroySurfaceObject(m_cudaTempSurface));
 	if (m_cudaSharedSurface) checkCudaErrors(cudaDestroySurfaceObject(m_cudaSharedSurface));
 	if (m_cudaTempArray) checkCudaErrors(cudaFreeArray(m_cudaTempArray));
+	if (m_cudaOriginalMipmappedArray)
+	{
+		checkCudaErrors(cudaFreeMipmappedArray(m_cudaOriginalMipmappedArray));
+	}
 	if (m_dxWaitsForCuda) checkCudaErrors(cudaDestroyExternalSemaphore(m_dxWaitsForCuda));
 	if (m_cudaWaitsForDx) checkCudaErrors(cudaDestroyExternalSemaphore(m_cudaWaitsForDx));
 	if (m_cudaExternalMemory) checkCudaErrors(cudaDestroyExternalMemory(m_cudaExternalMemory));
 	if (m_cudaStream) checkCudaErrors(cudaStreamDestroy(m_cudaStream));
 	m_cudaStream = nullptr; m_cudaBuffer = nullptr; m_cudaExternalMemory = nullptr;
-	m_cudaSharedMipmappedArray = nullptr; m_cudaSharedArray = nullptr; m_cudaTempArray = nullptr;
+	m_cudaSharedMipmappedArray = nullptr; m_cudaOriginalMipmappedArray = nullptr;
+	m_cudaSharedArray = nullptr;
+	m_cudaOriginalArray = nullptr; m_cudaTempArray = nullptr;
 	m_cudaSharedSurface = 0; m_cudaTempSurface = 0;
+	m_cudaSharedTexture = 0;
 	m_cudaWaitsForDx = nullptr; m_dxWaitsForCuda = nullptr;
 	m_sharedBuffer.Reset(); m_sharedTexture.Reset(); m_dxToCudaFence.Reset(); m_cudaToDxFence.Reset();
 	m_bufferSize = 0; m_nAllocationSize = 0; m_dxToCudaValue = 0; m_cudaToDxValue = 0;
@@ -208,7 +220,7 @@ void CDirectXCudaInterop::ImportDXTextureToCuda(ID3D12Device* device)
 		std::cerr << "CreateSharedHandle(shared texture) failed." << std::endl;
 		std::exit(EXIT_FAILURE);
 	}
-
+	//DIrect12에 Texture 리소스에 handle을 받아서 만듬
 	cudaExternalMemoryHandleDesc memoryDesc = {};
 	memoryDesc.type = cudaExternalMemoryHandleTypeD3D12Resource;
 	memoryDesc.handle.win32.handle = hSharedHandle;
@@ -237,7 +249,11 @@ void CDirectXCudaInterop::ImportDXTextureToCuda(ID3D12Device* device)
 		&m_cudaSharedMipmappedArray, m_cudaExternalMemory, &arrayDesc));
 	checkCudaErrors(cudaGetMipmappedArrayLevel(&m_cudaSharedArray, m_cudaSharedMipmappedArray, 0));
 
-	// 블러 같은 다단계 후처리에서 사용할 CUDA 전용 중간 surface이다.
+	// Ex16과 동일하게 별도 원본 mipmapped array를 Texture Object 입력으로 사용한다.
+	checkCudaErrors(cudaMallocMipmappedArray(&m_cudaOriginalMipmappedArray,
+		&channelDesc, textureExtent, 1, cudaArraySurfaceLoadStore));
+	checkCudaErrors(cudaGetMipmappedArrayLevel(
+		&m_cudaOriginalArray, m_cudaOriginalMipmappedArray, 0));
 	checkCudaErrors(cudaMallocArray(&m_cudaTempArray, &channelDesc,
 		m_nTextureWidth, m_nTextureHeight, cudaArraySurfaceLoadStore));
 
@@ -247,6 +263,20 @@ void CDirectXCudaInterop::ImportDXTextureToCuda(ID3D12Device* device)
 	checkCudaErrors(cudaCreateSurfaceObject(&m_cudaSharedSurface, &resourceDesc));
 	resourceDesc.res.array.array = m_cudaTempArray;
 	checkCudaErrors(cudaCreateSurfaceObject(&m_cudaTempSurface, &resourceDesc));
+
+	// 공유 Texture는 Texture Object로 읽고, Copy 커널이 CUDA 전용 원본에 보존한다.
+	cudaResourceDesc textureResourceDesc = {};
+	textureResourceDesc.resType = cudaResourceTypeMipmappedArray;
+	textureResourceDesc.res.mipmap.mipmap = m_cudaOriginalMipmappedArray;
+	cudaTextureDesc textureDesc = {};
+	textureDesc.normalizedCoords = 1;
+	textureDesc.filterMode = cudaFilterModePoint;
+	textureDesc.mipmapFilterMode = cudaFilterModePoint;
+	textureDesc.addressMode[0] = cudaAddressModeClamp;
+	textureDesc.addressMode[1] = cudaAddressModeClamp;
+	textureDesc.readMode = cudaReadModeNormalizedFloat;
+	checkCudaErrors(cudaCreateTextureObject(
+		&m_cudaSharedTexture, &textureResourceDesc, &textureDesc, nullptr));
 }
 
 void CDirectXCudaInterop::ImportDXFencesToCuda(ID3D12Device* device)
@@ -288,8 +318,13 @@ bool CDirectXCudaInterop::ExecuteCuda(ID3D12CommandQueue* queue, const KernelPar
 	if (!SignalDirectXComplete(queue, &ready) || !WaitCudaForDirectX(ready)) return false;
 	if (m_bTextureInterop)
 	{
-		checkCudaErrors(LaunchDirectXCudaInteropTextureKernel(m_cudaSharedSurface,
-			m_cudaTempSurface, m_nTextureWidth, m_nTextureHeight,
+		// 실시간 DX12 렌더 결과로 보존 원본을 갱신한다.
+		checkCudaErrors(cudaMemcpy2DArrayToArrayAsync(
+			m_cudaOriginalArray, 0, 0, m_cudaSharedArray, 0, 0,
+			static_cast<size_t>(m_nTextureWidth) * sizeof(uchar4),
+			m_nTextureHeight, cudaMemcpyDeviceToDevice, m_cudaStream));
+		checkCudaErrors(LaunchDirectXCudaInteropTextureKernel(m_cudaSharedTexture,
+			m_cudaSharedSurface, m_cudaTempSurface, m_nTextureWidth, m_nTextureHeight,
 			parameters.m_nBlurRadius, parameters.m_fBlurSigma, m_cudaStream));
 	}
 	else

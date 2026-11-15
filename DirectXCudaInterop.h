@@ -79,10 +79,13 @@ private:
 	cudaStream_t m_cudaStream = nullptr;
 	void* m_cudaBuffer = nullptr;
 	cudaMipmappedArray_t m_cudaSharedMipmappedArray = nullptr;
+	cudaMipmappedArray_t m_cudaOriginalMipmappedArray = nullptr;
 	cudaArray_t m_cudaSharedArray = nullptr;
+	cudaArray_t m_cudaOriginalArray = nullptr;
 	cudaArray_t m_cudaTempArray = nullptr;
 	cudaSurfaceObject_t m_cudaSharedSurface = 0;
 	cudaSurfaceObject_t m_cudaTempSurface = 0;
+	cudaTextureObject_t m_cudaSharedTexture = 0;
 	size_t m_bufferSize = 0;
 	UINT m_nTextureWidth = 0;
 	UINT m_nTextureHeight = 0;

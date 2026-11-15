@@ -135,7 +135,12 @@ void CMainScene::OnPreRender(ID3D12GraphicsCommandList* commandList, int renderT
 			m_CudaInterop.SetExecutionMode(
 				CDirectXCudaInterop::EExecutionMode::ComputeShaderOnly, m_pd3dCommandQueue);
 		}
-		commandList->OMSetRenderTargets(renderTargetCount, rtvHandles, TRUE, dsvHandle);
+		const float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+		::SynchronizeResourceTransition(commandList, m_pCudaRenderTexture->GetResource(0).Get(),
+			D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_RENDER_TARGET);
+		commandList->ClearRenderTargetView(m_d3dCudaRtvCPUDescriptorHandle, clearColor, 0, nullptr);
+		commandList->OMSetRenderTargets(1, &m_d3dCudaRtvCPUDescriptorHandle, TRUE, dsvHandle);
+		//commandList->OMSetRenderTargets(renderTargetCount, rtvHandles, TRUE, dsvHandle);
 	}
 }
 
@@ -167,12 +172,14 @@ void CMainScene::OnPostRender(ID3D12GraphicsCommandList* commandList,
 		HRESULT result = commandList->Close();
 		if (SUCCEEDED(result))
 		{
-			ID3D12CommandList* cudaInputLists[] = { commandList };
-			commandQueue->ExecuteCommandLists(_countof(cudaInputLists), cudaInputLists);
+			ComPtr<ID3D12CommandList> cudaInputLists[] = { commandList };
+			commandQueue->ExecuteCommandLists(_countof(cudaInputLists), cudaInputLists->GetAddressOf());
 		}
 
 		bool cudaResultReady = SUCCEEDED(result);
+
 		CDirectXCudaInterop::KernelParameters kernelParameters = {};
+
 		kernelParameters.m_nBlurRadius = m_nBlurSet;
 		kernelParameters.m_fBlurSigma = max(1.0f, static_cast<float>(m_nBlurSet) * 0.5f);
 
@@ -204,18 +211,28 @@ void CMainScene::OnPostRender(ID3D12GraphicsCommandList* commandList,
 		commandList->OMSetRenderTargets(renderTargetCount, rtvHandles, TRUE, dsvHandle);
 		if (cudaResultReady && m_pPostProcessingObject)
 		{
-			::SynchronizeResourceTransition(commandList, pSharedSource,
-				D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		/*	::SynchronizeResourceTransition(commandList, pSharedSource,
+				D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);*/
 			commandList->SetDescriptorHeaps(1, m_pDescriptorHeap->m_pd3dCbvSrvDescriptorHeap.GetAddressOf());
 			commandList->SetGraphicsRootSignature(m_pd3dRootSignature.Get());
 			m_pPostProcessingObject->Render(commandList, camera);
-			::SynchronizeResourceTransition(commandList, pSharedSource,
-				D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COMMON);
+			//::SynchronizeResourceTransition(commandList, pSharedSource,
+			//	D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COMMON);
 		}
 	}
 
+	else
+	{
+		::SynchronizeResourceTransition(commandList, m_pCudaRenderTexture->GetResource(0).Get(),
+			D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+		commandList->OMSetRenderTargets(renderTargetCount, rtvHandles, TRUE, dsvHandle);
+		m_pPostProcessingObject->Render(commandList, camera);
+	}
 	CScene::OnPostRender(commandList, commandQueue, renderTargetCount,
 		rtvHandles, dsvHandle, camera);
+
+
+
 }
 
 bool CMainScene::IsCudaPostProcessEnabled() const

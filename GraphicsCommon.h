@@ -18,6 +18,7 @@ public:
 
 	//PSO
 	ComPtr<ID3D12PipelineState> m_cpd3dTestPSO; // 테스트 용도로 만든 PSO
+	ComPtr<ID3D12PipelineState> m_cpd3dPostProcessingTestPSO; //테스트 용도로 만든 PostProcessing PSO
 
 	ComPtr<ID3D12PipelineState> m_cpd3dBasicPSO;
 	ComPtr<ID3D12PipelineState> m_cpd3dBasicNormalPSO;
