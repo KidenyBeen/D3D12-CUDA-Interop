@@ -105,6 +105,25 @@ __global__ void GaussianBlurHorizontalKernel(cudaSurfaceObject_t originalSurface
 	cudaSurfaceObject_t tempSurface, unsigned int nWidth, unsigned int nHeight,
 	int nRadius, float fSigma)
 {
+	extern __shared__ uchar4 sharedTile[];
+	const unsigned int tileWidth = blockDim.x + nRadius * 2;
+	const unsigned int tileElementCount = blockDim.y * tileWidth;
+	const unsigned int threadIndex = threadIdx.y * blockDim.x + threadIdx.x;
+	const unsigned int threadCount = blockDim.x * blockDim.y;
+	for (unsigned int tileIndex = threadIndex; tileIndex < tileElementCount;
+		tileIndex += threadCount)
+	{
+		const unsigned int tileY = tileIndex / tileWidth;
+		const unsigned int tileX = tileIndex % tileWidth;
+		const int sourceX = max(0, min((int)nWidth - 1,
+			(int)(blockIdx.x * blockDim.x + tileX) - nRadius));
+		const int sourceY = max(0, min((int)nHeight - 1,
+			(int)(blockIdx.y * blockDim.y + tileY)));
+		sharedTile[tileIndex] = surf2Dread<uchar4>(
+			originalSurface, sourceX * sizeof(uchar4), sourceY);
+	}
+	__syncthreads();
+
 	const unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
 	const unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
 	if (x >= nWidth || y >= nHeight)
@@ -116,10 +135,10 @@ __global__ void GaussianBlurHorizontalKernel(cudaSurfaceObject_t originalSurface
 	float totalWeight = 0.0f;
 	for (int offset = -nRadius; offset <= nRadius; ++offset)
 	{
-		const int sampleX = max(0, min((int)nWidth - 1, (int)x + offset));
 		const float weight = GaussianWeight(offset, fSigma);
-		const uchar4 pixel = surf2Dread<uchar4>(
-			originalSurface, sampleX * sizeof(uchar4), y);
+		const int sharedIndex = (int)(threadIdx.y * tileWidth + threadIdx.x) +
+			nRadius + offset;
+		const uchar4 pixel = sharedTile[sharedIndex];
 		const float4 sample = UnormPixelToFloat4(pixel);
 		color.x += sample.x * weight; color.y += sample.y * weight;
 		color.z += sample.z * weight; color.w += sample.w * weight;
@@ -135,6 +154,25 @@ __global__ void GaussianBlurVerticalKernel(cudaSurfaceObject_t tempSurface,
 	cudaSurfaceObject_t sharedSurface, unsigned int nWidth, unsigned int nHeight,
 	int nRadius, float fSigma)
 {
+	extern __shared__ uchar4 sharedTile[];
+	const unsigned int tileHeight = blockDim.y + nRadius * 2;
+	const unsigned int tileElementCount = blockDim.x * tileHeight;
+	const unsigned int threadIndex = threadIdx.y * blockDim.x + threadIdx.x;
+	const unsigned int threadCount = blockDim.x * blockDim.y;
+	for (unsigned int tileIndex = threadIndex; tileIndex < tileElementCount;
+		tileIndex += threadCount)
+	{
+		const unsigned int tileY = tileIndex / blockDim.x;
+		const unsigned int tileX = tileIndex % blockDim.x;
+		const int sourceX = max(0, min((int)nWidth - 1,
+			(int)(blockIdx.x * blockDim.x + tileX)));
+		const int sourceY = max(0, min((int)nHeight - 1,
+			(int)(blockIdx.y * blockDim.y + tileY) - nRadius));
+		sharedTile[tileIndex] = surf2Dread<uchar4>(
+			tempSurface, sourceX * sizeof(uchar4), sourceY);
+	}
+	__syncthreads();
+
 	const unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
 	const unsigned int y = blockIdx.y * blockDim.y + threadIdx.y;
 	if (x >= nWidth || y >= nHeight)
@@ -146,10 +184,10 @@ __global__ void GaussianBlurVerticalKernel(cudaSurfaceObject_t tempSurface,
 	float totalWeight = 0.0f;
 	for (int offset = -nRadius; offset <= nRadius; ++offset)
 	{
-		const int sampleY = max(0, min((int)nHeight - 1, (int)y + offset));
 		const float weight = GaussianWeight(offset, fSigma);
-		const uchar4 pixel = surf2Dread<uchar4>(
-			tempSurface, x * sizeof(uchar4), sampleY);
+		const int sharedIndex = ((int)threadIdx.y + nRadius + offset) *
+			(int)blockDim.x + (int)threadIdx.x;
+		const uchar4 pixel = sharedTile[sharedIndex];
 		const float4 sample = UnormPixelToFloat4(pixel);
 		color.x += sample.x * weight; color.y += sample.y * weight;
 		color.z += sample.z * weight; color.w += sample.w * weight;
@@ -178,6 +216,7 @@ extern "C" cudaError_t LaunchDirectXCudaInteropTextureKernel(cudaTextureObject_t
 
 	const dim3 block(16, 16);
 	const dim3 grid((nWidth + block.x - 1) / block.x, (nHeight + block.y - 1) / block.y);
+	const size_t sharedMemoryBytes = block.x * (block.y + nRadius * 2) * sizeof(uchar4);
 	CopyTextureKernel<<<grid, block, 0, stream>>>(
 		sharedSurface, sharedTexture, nWidth, nHeight);
 	cudaError_t result = ValidateKernelStage("CopyTextureKernel", stream);
@@ -191,14 +230,14 @@ extern "C" cudaError_t LaunchDirectXCudaInteropTextureKernel(cudaTextureObject_t
 	}
 	for (int iteration = 0; iteration < nIterations; ++iteration)
 	{
-		GaussianBlurHorizontalKernel<<<grid, block, 0, stream>>>(
+		GaussianBlurHorizontalKernel<<<grid, block, sharedMemoryBytes, stream>>>(
 			sharedSurface, tempSurface, nWidth, nHeight, nRadius, fSigma);
 		result = ValidateKernelStage("GaussianBlurHorizontalKernel", stream);
 		if (result != cudaSuccess)
 		{
 			return result;
 		}
-		GaussianBlurVerticalKernel<<<grid, block, 0, stream>>>(
+		GaussianBlurVerticalKernel<<<grid, block, sharedMemoryBytes, stream>>>(
 			tempSurface, sharedSurface, nWidth, nHeight, nRadius, fSigma);
 		result = ValidateKernelStage("GaussianBlurVerticalKernel", stream);
 		if (result != cudaSuccess)

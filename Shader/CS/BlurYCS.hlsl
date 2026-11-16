@@ -9,28 +9,52 @@ cbuffer GaussianBlurInfo : register(b0)
     uint textureHeight;
 }
 
+static const uint GROUP_SIZE = 16;
+static const uint MAX_BLUR_RADIUS = 20;
+groupshared float4 sharedTile[GROUP_SIZE + MAX_BLUR_RADIUS * 2][GROUP_SIZE];
+
 float GaussianWeight(int offset)
 {
     return exp(-(float)(offset * offset) / (2.0f * blurSigma * blurSigma));
 }
 
-[numthreads(32, 32, 1)]
-void main(uint3 dtID : SV_DispatchThreadID)
+[numthreads(GROUP_SIZE, GROUP_SIZE, 1)]
+void main(uint3 groupID : SV_GroupID, uint3 groupThreadID : SV_GroupThreadID,
+    uint3 dispatchThreadID : SV_DispatchThreadID)
 {
-    if (dtID.x >= textureWidth || dtID.y >= textureHeight)
+    const int radius = clamp(blurRadius, 0, (int)MAX_BLUR_RADIUS);
+    const uint tileHeight = GROUP_SIZE + (uint)(radius * 2);
+    const uint tileElementCount = GROUP_SIZE * tileHeight;
+    const uint threadIndex = groupThreadID.y * GROUP_SIZE + groupThreadID.x;
+
+    for (uint tileIndex = threadIndex; tileIndex < tileElementCount;
+        tileIndex += GROUP_SIZE * GROUP_SIZE)
+    {
+        const uint tileY = tileIndex / GROUP_SIZE;
+        const uint tileX = tileIndex % GROUP_SIZE;
+        const int sourceX = clamp((int)(groupID.x * GROUP_SIZE + tileX),
+            0, (int)textureWidth - 1);
+        const int sourceY = clamp((int)(groupID.y * GROUP_SIZE + tileY) - radius,
+            0, (int)textureHeight - 1);
+        sharedTile[tileY][tileX] = inputTex.Load(int3(sourceX, sourceY, 0));
+    }
+
+    GroupMemoryBarrierWithGroupSync();
+
+    if (dispatchThreadID.x >= textureWidth || dispatchThreadID.y >= textureHeight)
     {
         return;
     }
 
     float4 color = float4(0.0f, 0.0f, 0.0f, 0.0f);
     float totalWeight = 0.0f;
-    for (int offset = -blurRadius; offset <= blurRadius; ++offset)
+    for (int offset = -radius; offset <= radius; ++offset)
     {
-        const int sampleY = clamp((int)dtID.y + offset, 0, (int)textureHeight - 1);
         const float weight = GaussianWeight(offset);
-        color += inputTex.Load(int3(dtID.x, sampleY, 0)) * weight;
+        const int sharedY = (int)groupThreadID.y + radius + offset;
+        color += sharedTile[sharedY][groupThreadID.x] * weight;
         totalWeight += weight;
     }
 
-    outputTex[dtID.xy] = color / totalWeight;
+    outputTex[dispatchThreadID.xy] = color / totalWeight;
 }

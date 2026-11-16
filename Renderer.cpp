@@ -67,8 +67,8 @@ void CRenderer::GaussianBlur(ID3D12GraphicsCommandList* pd3dCommandList,
 		pd3dCommandList->SetComputeRootDescriptorTable(5,
 			pRenderTexture->GetUavGpuDescriptorHandle(1));
 		pd3dCommandList->Dispatch(
-			UINT(ceil(FRAME_BUFFER_WIDTH / 32.0f)),
-			UINT(ceil(FRAME_BUFFER_HEIGHT / 32.0f)), 1);
+			UINT(ceil(FRAME_BUFFER_WIDTH / 16.0f)),
+			UINT(ceil(FRAME_BUFFER_HEIGHT / 16.0f)), 1);
 		::SynchronizeUAVBarrier(pd3dCommandList, pTemporary);
 
 		::SynchronizeResourceTransition(pd3dCommandList, pSource,
@@ -82,8 +82,8 @@ void CRenderer::GaussianBlur(ID3D12GraphicsCommandList* pd3dCommandList,
 		pd3dCommandList->SetComputeRootDescriptorTable(5,
 			pRenderTexture->GetUavGpuDescriptorHandle(0));
 		pd3dCommandList->Dispatch(
-			UINT(ceil(FRAME_BUFFER_WIDTH / 32.0f)),
-			UINT(ceil(FRAME_BUFFER_HEIGHT / 32.0f)), 1);
+			UINT(ceil(FRAME_BUFFER_WIDTH / 16.0f)),
+			UINT(ceil(FRAME_BUFFER_HEIGHT / 16.0f)), 1);
 		::SynchronizeUAVBarrier(pd3dCommandList, pSource);
 
 		if (iteration + 1 < nBlurIterations)
