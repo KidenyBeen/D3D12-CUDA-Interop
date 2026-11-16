@@ -37,7 +37,7 @@ private: //시간관련된 클래스의 선언자
 
 
 	//윈도우 창에 띄우기 위하여 유니코드로 변환 시키는 것.
-	_TCHAR m_pszFrameRate[50];
+	_TCHAR m_pszFrameRate[100];
 private:
 	HINSTANCE m_hInstance;	//
 	HWND m_hWnd;	//
