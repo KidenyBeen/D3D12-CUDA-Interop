@@ -163,13 +163,14 @@ __global__ void GaussianBlurVerticalKernel(cudaSurfaceObject_t tempSurface,
 extern "C" cudaError_t LaunchDirectXCudaInteropTextureKernel(cudaTextureObject_t sharedTexture,
 	cudaSurfaceObject_t sharedSurface, cudaSurfaceObject_t tempSurface,
 	unsigned int nWidth, unsigned int nHeight,
-	int nRadius, float fSigma, cudaStream_t stream)
+	int nRadius, float fSigma, int nIterations, cudaStream_t stream)
 {
 	if (!sharedTexture || !sharedSurface || !tempSurface || !nWidth || !nHeight)
 	{
 		return cudaErrorInvalidValue;
 	}
 	nRadius = max(0, min(nRadius, 32));
+	nIterations = max(1, min(nIterations, 100));
 	if (fSigma <= 0.0f)
 	{
 		fSigma = max(1.0f, nRadius * 0.5f);
@@ -188,16 +189,24 @@ extern "C" cudaError_t LaunchDirectXCudaInteropTextureKernel(cudaTextureObject_t
 	{
 		return cudaSuccess;
 	}
-	GaussianBlurHorizontalKernel<<<grid, block, 0, stream>>>(
-		sharedSurface, tempSurface, nWidth, nHeight, nRadius, fSigma);
-	result = ValidateKernelStage("GaussianBlurHorizontalKernel", stream);
-	if (result != cudaSuccess)
+	for (int iteration = 0; iteration < nIterations; ++iteration)
 	{
-		return result;
+		GaussianBlurHorizontalKernel<<<grid, block, 0, stream>>>(
+			sharedSurface, tempSurface, nWidth, nHeight, nRadius, fSigma);
+		result = ValidateKernelStage("GaussianBlurHorizontalKernel", stream);
+		if (result != cudaSuccess)
+		{
+			return result;
+		}
+		GaussianBlurVerticalKernel<<<grid, block, 0, stream>>>(
+			tempSurface, sharedSurface, nWidth, nHeight, nRadius, fSigma);
+		result = ValidateKernelStage("GaussianBlurVerticalKernel", stream);
+		if (result != cudaSuccess)
+		{
+			return result;
+		}
 	}
-	GaussianBlurVerticalKernel<<<grid, block, 0, stream>>>(
-		tempSurface, sharedSurface, nWidth, nHeight, nRadius, fSigma);
-	return ValidateKernelStage("GaussianBlurVerticalKernel", stream);
+	return cudaSuccess;
 }
 
 __global__ void CudaConsoleAddKernel(const int* pLeft, const int* pRight, int* pResult)

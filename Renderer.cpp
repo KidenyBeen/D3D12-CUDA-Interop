@@ -25,7 +25,8 @@ void CRenderer::CreateGaussianBlurResources(ID3D12Device* pd3dDevice,
 }
 
 void CRenderer::GaussianBlur(ID3D12GraphicsCommandList* pd3dCommandList,
-	CTexture* pRenderTexture, CShader* pShader, int nBlurRadius, float fBlurSigma)
+	CTexture* pRenderTexture, CShader* pShader, int nBlurRadius,
+	float fBlurSigma, int nBlurIterations)
 {
 	CComputeShader* pComputeShader = dynamic_cast<CComputeShader*>(pShader);
 	if (!pd3dCommandList || !pRenderTexture || !pComputeShader ||
@@ -42,6 +43,7 @@ void CRenderer::GaussianBlur(ID3D12GraphicsCommandList* pd3dCommandList,
 	{
 		fBlurSigma = max(1.0f, static_cast<float>(nBlurRadius) * 0.5f);
 	}
+	nBlurIterations = max(1, min(nBlurIterations, 100));
 
 	m_pGaussianBlurInfo->m_nBlurRadius = nBlurRadius;
 	m_pGaussianBlurInfo->m_fBlurSigma = fBlurSigma;
@@ -57,30 +59,41 @@ void CRenderer::GaussianBlur(ID3D12GraphicsCommandList* pd3dCommandList,
 	::SynchronizeResourceTransition(pd3dCommandList, pTemporary,
 		D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
-	pComputeShader->OnPreparePSO(pd3dCommandList, 1);
-	pd3dCommandList->SetComputeRootDescriptorTable(2,
-		pRenderTexture->GetGpuDescriptorHandle(0));
-	pd3dCommandList->SetComputeRootDescriptorTable(5,
-		pRenderTexture->GetUavGpuDescriptorHandle(1));
-	pd3dCommandList->Dispatch(
-		UINT(ceil(FRAME_BUFFER_WIDTH / 32.0f)),
-		UINT(ceil(FRAME_BUFFER_HEIGHT / 32.0f)), 1);
-	::SynchronizeUAVBarrier(pd3dCommandList, pTemporary);
+	for (int iteration = 0; iteration < nBlurIterations; ++iteration)
+	{
+		pComputeShader->OnPreparePSO(pd3dCommandList, 1);
+		pd3dCommandList->SetComputeRootDescriptorTable(2,
+			pRenderTexture->GetGpuDescriptorHandle(0));
+		pd3dCommandList->SetComputeRootDescriptorTable(5,
+			pRenderTexture->GetUavGpuDescriptorHandle(1));
+		pd3dCommandList->Dispatch(
+			UINT(ceil(FRAME_BUFFER_WIDTH / 32.0f)),
+			UINT(ceil(FRAME_BUFFER_HEIGHT / 32.0f)), 1);
+		::SynchronizeUAVBarrier(pd3dCommandList, pTemporary);
 
-	::SynchronizeResourceTransition(pd3dCommandList, pSource,
-		D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-	::SynchronizeResourceTransition(pd3dCommandList, pTemporary,
-		D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+		::SynchronizeResourceTransition(pd3dCommandList, pSource,
+			D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		::SynchronizeResourceTransition(pd3dCommandList, pTemporary,
+			D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 
-	pComputeShader->OnPreparePSO(pd3dCommandList, 2);
-	pd3dCommandList->SetComputeRootDescriptorTable(2,
-		pRenderTexture->GetGpuDescriptorHandle(1));
-	pd3dCommandList->SetComputeRootDescriptorTable(5,
-		pRenderTexture->GetUavGpuDescriptorHandle(0));
-	pd3dCommandList->Dispatch(
-		UINT(ceil(FRAME_BUFFER_WIDTH / 32.0f)),
-		UINT(ceil(FRAME_BUFFER_HEIGHT / 32.0f)), 1);
-	::SynchronizeUAVBarrier(pd3dCommandList, pSource);
+		pComputeShader->OnPreparePSO(pd3dCommandList, 2);
+		pd3dCommandList->SetComputeRootDescriptorTable(2,
+			pRenderTexture->GetGpuDescriptorHandle(1));
+		pd3dCommandList->SetComputeRootDescriptorTable(5,
+			pRenderTexture->GetUavGpuDescriptorHandle(0));
+		pd3dCommandList->Dispatch(
+			UINT(ceil(FRAME_BUFFER_WIDTH / 32.0f)),
+			UINT(ceil(FRAME_BUFFER_HEIGHT / 32.0f)), 1);
+		::SynchronizeUAVBarrier(pd3dCommandList, pSource);
+
+		if (iteration + 1 < nBlurIterations)
+		{
+			::SynchronizeResourceTransition(pd3dCommandList, pSource,
+				D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+			::SynchronizeResourceTransition(pd3dCommandList, pTemporary,
+				D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		}
+	}
 
 	::SynchronizeResourceTransition(pd3dCommandList, pSource,
 		D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
@@ -92,7 +105,7 @@ void CRenderer::PixelShaderGaussianBlur(ID3D12GraphicsCommandList* pd3dCommandLi
 	CTexture* pRenderTexture, CPostProcessingObject* pPostProcessingObject,
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dSourceRtvHandle,
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dTemporaryRtvHandle,
-	int nBlurRadius, float fBlurSigma)
+	int nBlurRadius, float fBlurSigma, int nBlurIterations)
 {
 	if (!pd3dCommandList || !pRenderTexture || !pPostProcessingObject)
 	{
@@ -107,6 +120,7 @@ void CRenderer::PixelShaderGaussianBlur(ID3D12GraphicsCommandList* pd3dCommandLi
 	{
 		fBlurSigma = max(1.0f, static_cast<float>(nBlurRadius) * 0.5f);
 	}
+	nBlurIterations = max(1, min(nBlurIterations, 100));
 
 	CB_GAUSSIAN_BLUR_INFO blurInfo = {};
 	blurInfo.m_nBlurRadius = nBlurRadius;
@@ -122,20 +136,31 @@ void CRenderer::PixelShaderGaussianBlur(ID3D12GraphicsCommandList* pd3dCommandLi
 	::SynchronizeResourceTransition(pd3dCommandList, pTemporary,
 		D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-	pd3dCommandList->OMSetRenderTargets(1, &d3dTemporaryRtvHandle, TRUE, nullptr);
-	pPostProcessingObject->SetPostProcessTexture(pRenderTexture, 0);
-	pPostProcessingObject->SetPostProcessingPass(1);
-	pPostProcessingObject->Render(pd3dCommandList, nullptr);
+	for (int iteration = 0; iteration < nBlurIterations; ++iteration)
+	{
+		pd3dCommandList->OMSetRenderTargets(1, &d3dTemporaryRtvHandle, TRUE, nullptr);
+		pPostProcessingObject->SetPostProcessTexture(pRenderTexture, 0);
+		pPostProcessingObject->SetPostProcessingPass(1);
+		pPostProcessingObject->Render(pd3dCommandList, nullptr);
 
-	::SynchronizeResourceTransition(pd3dCommandList, pSource,
-		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
-	::SynchronizeResourceTransition(pd3dCommandList, pTemporary,
-		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		::SynchronizeResourceTransition(pd3dCommandList, pSource,
+			D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+		::SynchronizeResourceTransition(pd3dCommandList, pTemporary,
+			D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
-	pd3dCommandList->OMSetRenderTargets(1, &d3dSourceRtvHandle, TRUE, nullptr);
-	pPostProcessingObject->SetPostProcessTexture(pRenderTexture, 1);
-	pPostProcessingObject->SetPostProcessingPass(2);
-	pPostProcessingObject->Render(pd3dCommandList, nullptr);
+		pd3dCommandList->OMSetRenderTargets(1, &d3dSourceRtvHandle, TRUE, nullptr);
+		pPostProcessingObject->SetPostProcessTexture(pRenderTexture, 1);
+		pPostProcessingObject->SetPostProcessingPass(2);
+		pPostProcessingObject->Render(pd3dCommandList, nullptr);
+
+		if (iteration + 1 < nBlurIterations)
+		{
+			::SynchronizeResourceTransition(pd3dCommandList, pSource,
+				D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+			::SynchronizeResourceTransition(pd3dCommandList, pTemporary,
+				D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+		}
+	}
 
 	::SynchronizeResourceTransition(pd3dCommandList, pSource,
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);

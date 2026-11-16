@@ -17,7 +17,8 @@ private:
 	};
 
 	ERenderingMethod m_eRenderingMethod = ERenderingMethod::Default;
-	int m_nBlurSet = 0;
+	int m_nBlurSet = 5;
+	int m_nBlurIterations = 1;
 	CTexture* m_pCudaRenderTexture = nullptr;
 	CPostProcessingObject* m_pPostProcessingObject = nullptr;
 	CRenderer m_Renderer;

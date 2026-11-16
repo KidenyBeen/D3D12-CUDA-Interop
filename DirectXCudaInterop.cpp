@@ -8,7 +8,7 @@ extern "C" cudaError_t LaunchDirectXCudaInteropKernel(
 	void*, size_t, float, float, cudaStream_t);
 extern "C" cudaError_t LaunchDirectXCudaInteropTextureKernel(
 	cudaTextureObject_t, cudaSurfaceObject_t, cudaSurfaceObject_t,
-	UINT, UINT, int, float, cudaStream_t);
+	UINT, UINT, int, float, int, cudaStream_t);
 extern "C" cudaError_t RunDirectXCudaConsoleAdd(int, int, int*);
 
 namespace
@@ -330,7 +330,8 @@ bool CDirectXCudaInterop::ExecuteCuda(ID3D12CommandQueue* queue, const KernelPar
 		checkCudaErrors(cudaMemcpy3DAsync(&copyParameters, m_cudaStream));
 		checkCudaErrors(LaunchDirectXCudaInteropTextureKernel(m_cudaSharedTexture,
 			m_cudaSharedSurface, m_cudaTempSurface, m_nTextureWidth, m_nTextureHeight,
-			parameters.m_nBlurRadius, parameters.m_fBlurSigma, m_cudaStream));
+			parameters.m_nBlurRadius, parameters.m_fBlurSigma,
+			parameters.m_nBlurIterations, m_cudaStream));
 	}
 	else
 	{

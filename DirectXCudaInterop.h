@@ -18,6 +18,7 @@ public:
 		float m_fValueScale = 1.0f;
 		int m_nBlurRadius = 0;
 		float m_fBlurSigma = 0.0f;
+		int m_nBlurIterations = 1;
 	};
 
 	CDirectXCudaInterop() = default;

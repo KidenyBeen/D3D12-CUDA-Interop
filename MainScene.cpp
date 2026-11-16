@@ -197,6 +197,7 @@ void CMainScene::OnPostRender(ID3D12GraphicsCommandList* commandList,
 
 		kernelParameters.m_nBlurRadius = m_nBlurSet;
 		kernelParameters.m_fBlurSigma = max(1.0f, static_cast<float>(m_nBlurSet) * 0.5f);
+		kernelParameters.m_nBlurIterations = m_nBlurIterations;
 
 		if (cudaResultReady && !m_CudaInterop.ExecuteCuda(commandQueue, kernelParameters))
 		{
@@ -247,7 +248,8 @@ void CMainScene::OnPostRender(ID3D12GraphicsCommandList* commandList,
 		const float fBlurSigma = max(1.0f, static_cast<float>(m_nBlurSet) * 0.5f);
 		m_Renderer.PixelShaderGaussianBlur(commandList, m_pCudaRenderTexture,
 			m_pPostProcessingObject, m_d3dCudaRtvCPUDescriptorHandle,
-			m_d3dCudaTempRtvCPUDescriptorHandle, m_nBlurSet, fBlurSigma);
+			m_d3dCudaTempRtvCPUDescriptorHandle, m_nBlurSet, fBlurSigma,
+			m_nBlurIterations);
 
 		commandList->OMSetRenderTargets(renderTargetCount, rtvHandles, TRUE, dsvHandle);
 		m_pPostProcessingObject->Render(commandList, camera);
@@ -260,7 +262,7 @@ void CMainScene::OnPostRender(ID3D12GraphicsCommandList* commandList,
 		commandList->SetComputeRootSignature(m_cpd3dComputeRootSignature.Get());
 		const float fBlurSigma = max(1.0f, static_cast<float>(m_nBlurSet) * 0.5f);
 		m_Renderer.GaussianBlur(commandList, m_pCudaRenderTexture,
-			&m_ComputeShader, m_nBlurSet, fBlurSigma);
+			&m_ComputeShader, m_nBlurSet, fBlurSigma, m_nBlurIterations);
 
 		commandList->OMSetRenderTargets(renderTargetCount, rtvHandles, TRUE, dsvHandle);
 		commandList->SetGraphicsRootSignature(m_pd3dRootSignature.Get());
@@ -338,7 +340,8 @@ void CMainScene::OnGUI(ImGuiIO* gui)
 
 		if (ImGui::CollapsingHeader("Blur Settings", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			ImGui::SliderInt("Blur", &m_nBlurSet, 0, 20);
+			ImGui::SliderInt("Blur Radius", &m_nBlurSet, 0, 20);
+			ImGui::SliderInt("Blur Iterations", &m_nBlurIterations, 1, 100);
 		}
 	}
 	ImGui::End();
