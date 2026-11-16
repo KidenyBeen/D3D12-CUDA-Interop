@@ -1098,7 +1098,8 @@ public:
 	CPostProcessingObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual ~CPostProcessingObject();
 
-	void SetPostProcessTexture(CTexture* pTexture);
+	void SetPostProcessTexture(CTexture* pTexture, int nTextureIndex = 0);
+	void SetPostProcessingPass(UINT nPass);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
 };
 

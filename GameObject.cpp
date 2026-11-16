@@ -2904,13 +2904,27 @@ CPostProcessingObject::~CPostProcessingObject()
 {
 }
 
-void CPostProcessingObject::SetPostProcessTexture(CTexture* pTexture)
+void CPostProcessingObject::SetPostProcessTexture(CTexture* pTexture, int nTextureIndex)
 {
-	if (pTexture && m_nMaterials > 0 && m_ppMaterials[0] && m_ppMaterials[0]->m_ppTextures[0])
+	if (pTexture && nTextureIndex >= 0 && nTextureIndex < pTexture->GetTextures() &&
+		m_nMaterials > 0 && m_ppMaterials[0] && m_ppMaterials[0]->m_ppTextures[0])
 	{
 		// 리소스 소유권은 MainScene에 두고, 기존 PostProcessing용 Texture에는 SRV 핸들만 연결한다.
-		m_ppMaterials[0]->m_ppTextures[0]->SetGpuDescriptorHandle(0, pTexture->GetGpuDescriptorHandle(0));
+		m_ppMaterials[0]->m_ppTextures[0]->SetGpuDescriptorHandle(0, pTexture->GetGpuDescriptorHandle(nTextureIndex));
 		m_ppMaterials[0]->m_ppTextures[0]->SetRootParameterIndex(0, 19);
+	}
+}
+
+void CPostProcessingObject::SetPostProcessingPass(UINT nPass)
+{
+	if (m_nMaterials > 0 && m_ppMaterials[0] && m_ppMaterials[0]->m_pShader)
+	{
+		CPostProcessingShader* pShader = dynamic_cast<CPostProcessingShader*>(
+			m_ppMaterials[0]->m_pShader);
+		if (pShader)
+		{
+			pShader->SetPostProcessingPass(nPass);
+		}
 	}
 }
 

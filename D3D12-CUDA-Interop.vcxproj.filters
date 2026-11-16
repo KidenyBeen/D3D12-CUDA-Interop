@@ -300,6 +300,12 @@
     <FxCompile Include="Shader\PS\PostProcessingTestPS.hlsl">
       <Filter>Shader\PS</Filter>
     </FxCompile>
+    <FxCompile Include="BlurXPS.hlsl">
+      <Filter>Shader\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="BlurYPS.hlsl">
+      <Filter>Shader\PS</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="DirectXCudaInterop.cu" />

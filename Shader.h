@@ -234,9 +234,12 @@ public:
 public:
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
+	void SetPostProcessingPass(UINT nPass) { m_nPostProcessingPass = nPass; }
 
 private:
-
+	UINT m_nPostProcessingPass = 0;
+	ComPtr<ID3D12PipelineState> m_cpd3dBlurXPSO;
+	ComPtr<ID3D12PipelineState> m_cpd3dBlurYPSO;
 };
 
 /////////////////////////////////////////////////////////////

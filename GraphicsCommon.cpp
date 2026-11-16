@@ -881,6 +881,10 @@ void CGraphicsCommon::InitPipelineStates(ID3D12Device* pd3dDevice)
 
 	m_cpd3dPostProcessingPSO = CreatePSO(pd3dDevice, m_cpd3dMainSceneRootSignature.Get(), L"Shader/VS/PostProcessingVS.hlsl", L"Shader/PS/PostProcessingPS.hlsl",
 		m_d3dDefaultRasterize, m_d3dDefaultBlend, m_d3dDoneDepth, m_d3dPostPorcessingInput, m_dxgiRtvFormatLDR, m_dxgiDsvFormatUnknown, 1);
+	m_cpd3dPixelBlurXPSO = CreatePSO(pd3dDevice, m_cpd3dMainSceneRootSignature.Get(), L"Shader/VS/PostProcessingVS.hlsl", L"Shader/PS/BlurXPS.hlsl",
+		m_d3dDefaultRasterize, m_d3dDefaultBlend, m_d3dDoneDepth, m_d3dPostPorcessingInput, m_dxgiRtvFormatLDR, m_dxgiDsvFormatUnknown, 1);
+	m_cpd3dPixelBlurYPSO = CreatePSO(pd3dDevice, m_cpd3dMainSceneRootSignature.Get(), L"Shader/VS/PostProcessingVS.hlsl", L"Shader/PS/BlurYPS.hlsl",
+		m_d3dDefaultRasterize, m_d3dDefaultBlend, m_d3dDoneDepth, m_d3dPostPorcessingInput, m_dxgiRtvFormatLDR, m_dxgiDsvFormatUnknown, 1);
 
 	m_cpd3dParticlePSO = CreateNormalPSO(pd3dDevice, m_cpd3dMainSceneRootSignature.Get(), L"Shader/VS/ParticleVS.hlsl", L"Shader/GS/ParticleGS.hlsl", L"Shader/PS/ParticlePS.hlsl",
 		m_d3dDefaultRasterize, m_d3dAlphaBlend, m_d3dDefaultDepth, m_d3dParticleInput, m_dxgiRtvFormatHDR);

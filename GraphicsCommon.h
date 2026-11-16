@@ -42,6 +42,8 @@ public:
 	ComPtr<ID3D12PipelineState> m_cpd3dOBBPSO;
 
 	ComPtr<ID3D12PipelineState> m_cpd3dPostProcessingPSO;
+	ComPtr<ID3D12PipelineState> m_cpd3dPixelBlurXPSO;
+	ComPtr<ID3D12PipelineState> m_cpd3dPixelBlurYPSO;
 
 	ComPtr<ID3D12PipelineState> m_cpd3dTerrainPSO;
 	ComPtr<ID3D12PipelineState> m_cpd3dTerrainWirePSO;

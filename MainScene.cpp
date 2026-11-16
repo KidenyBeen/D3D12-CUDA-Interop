@@ -129,7 +129,8 @@ void CMainScene::OnPreRender(ID3D12GraphicsCommandList* commandList, int renderT
 		commandList->ClearRenderTargetView(m_d3dCudaRtvCPUDescriptorHandle, clearColor, 0, nullptr);
 		commandList->OMSetRenderTargets(1, &m_d3dCudaRtvCPUDescriptorHandle, TRUE, dsvHandle);
 	}
-	else if (m_eRenderingMethod == ERenderingMethod::ComputeShader)
+	else if (m_eRenderingMethod == ERenderingMethod::PixelShader ||
+		m_eRenderingMethod == ERenderingMethod::ComputeShader)
 	{
 		if (m_CudaInterop.IsInitialized() && m_pd3dCommandQueue)
 		{
@@ -239,6 +240,20 @@ void CMainScene::OnPostRender(ID3D12GraphicsCommandList* commandList,
 				D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COMMON);
 		}
 	}
+	else if (m_eRenderingMethod == ERenderingMethod::PixelShader)
+	{
+		commandList->SetDescriptorHeaps(1, m_pDescriptorHeap->m_pd3dCbvSrvDescriptorHeap.GetAddressOf());
+		commandList->SetGraphicsRootSignature(m_pd3dRootSignature.Get());
+		const float fBlurSigma = max(1.0f, static_cast<float>(m_nBlurSet) * 0.5f);
+		m_Renderer.PixelShaderGaussianBlur(commandList, m_pCudaRenderTexture,
+			m_pPostProcessingObject, m_d3dCudaRtvCPUDescriptorHandle,
+			m_d3dCudaTempRtvCPUDescriptorHandle, m_nBlurSet, fBlurSigma);
+
+		commandList->OMSetRenderTargets(renderTargetCount, rtvHandles, TRUE, dsvHandle);
+		m_pPostProcessingObject->Render(commandList, camera);
+		::SynchronizeResourceTransition(commandList, m_pCudaRenderTexture->GetResource(0).Get(),
+			D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COMMON);
+	}
 	else if (m_eRenderingMethod == ERenderingMethod::ComputeShader)
 	{
 		commandList->SetDescriptorHeaps(1, m_pDescriptorHeap->m_pd3dCbvSrvDescriptorHeap.GetAddressOf());
@@ -303,6 +318,11 @@ void CMainScene::OnGUI(ImGuiIO* gui)
 			if (ImGui::RadioButton("Default", m_eRenderingMethod == ERenderingMethod::Default))
 			{
 				m_eRenderingMethod = ERenderingMethod::Default;
+			}
+
+			if (ImGui::RadioButton("Pixel Shader", m_eRenderingMethod == ERenderingMethod::PixelShader))
+			{
+				m_eRenderingMethod = ERenderingMethod::PixelShader;
 			}
 
 			if (ImGui::RadioButton("Compute Shader", m_eRenderingMethod == ERenderingMethod::ComputeShader))

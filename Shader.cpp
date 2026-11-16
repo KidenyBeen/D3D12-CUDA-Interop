@@ -483,6 +483,8 @@ CPostProcessingShader::CPostProcessingShader()
 	//m_cpd3dMainPSO = CGraphicsCommon::GetInstance().m_cpd3dPostProcessingPSO;
 	//Test를 위한것
 	m_cpd3dMainPSO = CGraphicsCommon::GetInstance().m_cpd3dPostProcessingTestPSO;
+	m_cpd3dBlurXPSO = CGraphicsCommon::GetInstance().m_cpd3dPixelBlurXPSO;
+	m_cpd3dBlurYPSO = CGraphicsCommon::GetInstance().m_cpd3dPixelBlurYPSO;
 	//m_cpd3dNormalPSO = CGraphicsCommon::GetInstance().m_cpd3dBasicNormalPSO;
 	//m_cpd3dWirePSO = CGraphicsCommon::GetInstance().m_cpd3dBasicWirePSO;
 }
@@ -499,7 +501,18 @@ void CPostProcessingShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3
 
 void CPostProcessingShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
-	CShader::Render(pd3dCommandList, pCamera);
+	if (m_nPostProcessingPass == 1)
+	{
+		pd3dCommandList->SetPipelineState(m_cpd3dBlurXPSO.Get());
+	}
+	else if (m_nPostProcessingPass == 2)
+	{
+		pd3dCommandList->SetPipelineState(m_cpd3dBlurYPSO.Get());
+	}
+	else
+	{
+		CShader::Render(pd3dCommandList, pCamera);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

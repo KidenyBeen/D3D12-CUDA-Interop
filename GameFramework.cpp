@@ -765,7 +765,7 @@ void CGameFramework::GUIProcess()
 void CGameFramework::FrameAdvance()
 {
 	//프레임 레이트 제한을 거는 것
-	m_GameTimer.Tick(120.0f);
+	m_GameTimer.Tick(240.0f);
 
 	if (CSceneManager::GetInstance().GetChangeNum() != 0) //0이 아니면 ReBuild
 	{

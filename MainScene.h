@@ -11,6 +11,7 @@ private:
 	enum class ERenderingMethod
 	{
 		Default = 0,
+		PixelShader,
 		ComputeShader,
 		Cuda
 	};

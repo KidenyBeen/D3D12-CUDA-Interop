@@ -30,5 +30,10 @@ public:
 		ID3D12GraphicsCommandList* pd3dCommandList);
 	void GaussianBlur(ID3D12GraphicsCommandList* pd3dCommandList,
 		CTexture* pRenderTexture, CShader* pShader, int nBlurRadius, float fBlurSigma);
+	void PixelShaderGaussianBlur(ID3D12GraphicsCommandList* pd3dCommandList,
+		CTexture* pRenderTexture, CPostProcessingObject* pPostProcessingObject,
+		D3D12_CPU_DESCRIPTOR_HANDLE d3dSourceRtvHandle,
+		D3D12_CPU_DESCRIPTOR_HANDLE d3dTemporaryRtvHandle,
+		int nBlurRadius, float fBlurSigma);
 };
 
