@@ -888,7 +888,10 @@ void CGameFramework::FrameAdvance()
 
 	MoveToNextFrame();
 
-	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
+	_stprintf_s(m_pszFrameRate, _countof(m_pszFrameRate),
+		_T("LapProject (%lu FPS | DeltaTime %.3f ms)"),
+		m_GameTimer.GetFrameRate(),
+		static_cast<double>(m_GameTimer.GetTimeElapsed() * 1000.0f));
 	::SetWindowText(m_hWnd, m_pszFrameRate);
 
 }
