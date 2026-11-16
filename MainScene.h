@@ -19,6 +19,8 @@ private:
 	int m_nBlurSet = 0;
 	CTexture* m_pCudaRenderTexture = nullptr;
 	CPostProcessingObject* m_pPostProcessingObject = nullptr;
+	CRenderer m_Renderer;
+	CComputeShader m_ComputeShader;
 	CDirectXCudaInterop m_CudaInterop;
 	ComPtr<ID3D12CommandAllocator> m_pd3dCudaPostCommandAllocator;
 	D3D12_CPU_DESCRIPTOR_HANDLE m_d3dCudaRtvCPUDescriptorHandle = {};

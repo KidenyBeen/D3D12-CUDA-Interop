@@ -34,6 +34,7 @@ void CMainScene::BuildObjects(ID3D12Device* device, ID3D12GraphicsCommandList* c
 
 	m_pTestObject = new CTestObject(device, commandList, m_pd3dRootSignature.Get());
 	m_pPostProcessingObject = new CPostProcessingObject(device, commandList, m_pd3dRootSignature.Get());
+	m_Renderer.CreateGaussianBlurResources(device, commandList);
 }
 
 void CMainScene::CreateShaderResourceViewCudaRtvs(ID3D12Device* device,
@@ -125,6 +126,19 @@ void CMainScene::OnPreRender(ID3D12GraphicsCommandList* commandList, int renderT
 		::SynchronizeResourceTransition(commandList, m_pCudaRenderTexture->GetResource(0).Get(),
 			D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_RENDER_TARGET);
 		const float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+		commandList->ClearRenderTargetView(m_d3dCudaRtvCPUDescriptorHandle, clearColor, 0, nullptr);
+		commandList->OMSetRenderTargets(1, &m_d3dCudaRtvCPUDescriptorHandle, TRUE, dsvHandle);
+	}
+	else if (m_eRenderingMethod == ERenderingMethod::ComputeShader)
+	{
+		if (m_CudaInterop.IsInitialized() && m_pd3dCommandQueue)
+		{
+			m_CudaInterop.SetExecutionMode(
+				CDirectXCudaInterop::EExecutionMode::ComputeShaderOnly, m_pd3dCommandQueue);
+		}
+		const float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+		::SynchronizeResourceTransition(commandList, m_pCudaRenderTexture->GetResource(0).Get(),
+			D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_RENDER_TARGET);
 		commandList->ClearRenderTargetView(m_d3dCudaRtvCPUDescriptorHandle, clearColor, 0, nullptr);
 		commandList->OMSetRenderTargets(1, &m_d3dCudaRtvCPUDescriptorHandle, TRUE, dsvHandle);
 	}
@@ -225,7 +239,20 @@ void CMainScene::OnPostRender(ID3D12GraphicsCommandList* commandList,
 				D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COMMON);
 		}
 	}
+	else if (m_eRenderingMethod == ERenderingMethod::ComputeShader)
+	{
+		commandList->SetDescriptorHeaps(1, m_pDescriptorHeap->m_pd3dCbvSrvDescriptorHeap.GetAddressOf());
+		commandList->SetComputeRootSignature(m_cpd3dComputeRootSignature.Get());
+		const float fBlurSigma = max(1.0f, static_cast<float>(m_nBlurSet) * 0.5f);
+		m_Renderer.GaussianBlur(commandList, m_pCudaRenderTexture,
+			&m_ComputeShader, m_nBlurSet, fBlurSigma);
 
+		commandList->OMSetRenderTargets(renderTargetCount, rtvHandles, TRUE, dsvHandle);
+		commandList->SetGraphicsRootSignature(m_pd3dRootSignature.Get());
+		m_pPostProcessingObject->Render(commandList, camera);
+		::SynchronizeResourceTransition(commandList, m_pCudaRenderTexture->GetResource(0).Get(),
+			D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COMMON);
+	}
 	else
 	{
 		::SynchronizeResourceTransition(commandList, m_pCudaRenderTexture->GetResource(0).Get(),
