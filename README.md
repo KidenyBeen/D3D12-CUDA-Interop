@@ -104,6 +104,95 @@ Gaussian Blur는 가로·세로 2-pass separable 방식입니다. Pixel Shader, 
 
 공유 텍스처는 Render Target, Common, Shader Resource 상태를 오가므로 단계별 Resource Barrier를 명시합니다. CUDA 객체는 생성의 역순으로 해제하며, Interop 클래스의 복사 생성과 대입을 금지해 외부 리소스의 중복 소유를 막았습니다.
 
+## 트러블슈팅
+
+### CUDA 후처리 이후 발생한 검은 화면
+
+#### 문제 상황
+
+CUDA 후처리를 적용한 초기 단계에서 CUDA Kernel과 공유 Render Target은 정상적으로 생성됐지만, 최종 결과가 검은 화면으로 출력되는 문제가 발생했습니다.
+
+Compute Shader는 D3D12 Command List에 `Dispatch` 명령을 직접 기록할 수 있지만, CUDA Kernel은 D3D12 Command List에 포함할 수 없습니다. 따라서 현재 Frame의 렌더링 결과를 CUDA가 처리하려면 D3D12 명령 기록을 다음과 같이 두 구간으로 나눠야 했습니다.
+
+```text
+D3D12 Scene Render
+→ 첫 번째 Command List 제출
+→ CUDA Kernel 실행 및 Fence 동기화
+→ 두 번째 Command List 기록
+→ CUDA 결과 출력 및 Present
+```
+
+#### 확인 과정
+
+처음에는 CUDA Interop 과정에서 문제가 발생했다고 판단해 다음 항목을 순서대로 확인했습니다.
+
+1. CUDA Device와 테스트 Kernel의 정상 실행 여부
+2. D3D12 Shared Handle과 CUDA External Memory Import
+3. CUDA Surface Object의 Texture 크기와 Format
+4. DX→CUDA / CUDA→DX Fence의 Signal과 Wait 순서
+5. `RENDER_TARGET → COMMON → PIXEL_SHADER_RESOURCE` Resource State 전환
+6. SRV, Descriptor Heap, Root Signature 및 Render Target 바인딩
+
+각 항목에서 명확한 오류가 발견되지 않아 문제 범위를 CUDA 처리 이후의 두 번째 D3D12 출력 Pass로 좁혔습니다.
+
+#### 원인
+
+CUDA 처리 이후 Command List를 다시 `Reset`하면서 Render Target, Descriptor Heap, Root Signature 등은 다시 설정했지만, Rasterizer 단계에 필요한 Viewport와 Scissor Rect를 재설정하지 않았습니다. 이전 Command List에서 설정한 상태가 새로운 기록 구간에도 이어질 것으로 잘못 가정한 것이 원인이었습니다.
+
+```text
+Command List Reset
+→ Viewport / Scissor Rect 미설정
+→ Full-screen Pass가 정상적인 화면 영역에 Rasterize되지 않음
+→ 검은 화면 출력
+```
+
+#### 해결
+
+두 번째 Command List를 `Reset`한 직후 카메라가 보유한 Viewport와 Scissor Rect를 다시 바인딩했습니다.
+
+```cpp
+result = commandList->Reset(
+    m_pd3dCudaPostCommandAllocator.Get(),
+    nullptr);
+
+if (camera)
+{
+    camera->SetViewportsAndScissorRects(commandList);
+}
+
+commandList->OMSetRenderTargets(
+    renderTargetCount,
+    rtvHandles,
+    TRUE,
+    dsvHandle);
+```
+
+`SetViewportsAndScissorRects()`에서는 새로운 Command List에 Rasterizer 상태를 다시 기록합니다.
+
+```cpp
+commandList->RSSetViewports(1, &m_d3dViewport);
+commandList->RSSetScissorRects(1, &m_d3dScissorRect);
+```
+
+상태를 다시 바인딩한 뒤 CUDA Gaussian Blur 결과가 정상적으로 출력됐습니다.
+
+#### 결과와 배운 점
+
+- CUDA Kernel과 공유 Texture 자체에는 문제가 없음을 확인
+- CUDA 결과를 D3D12 Full-screen Pass로 정상 출력
+- Command List를 새로 기록할 때 필요한 GPU 상태를 명시적으로 다시 설정하도록 수정
+- 복합적인 시스템에서는 오류가 나타난 기능보다 그 전후의 상태 전달 과정이 실제 원인일 수 있음을 확인
+
+검은 화면의 직접적인 원인은 Viewport와 Scissor Rect 누락이었습니다. CUDA 경로의 성능 저하는 이 상태 누락과 별개의 문제로, 다음과 같은 추가 비용에서 발생했습니다.
+
+- 첫 번째 Command List의 조기 제출
+- CUDA 처리 이후 두 번째 Command List 기록
+- D3D12 Queue와 CUDA Stream 사이의 양방향 Fence 동기화
+- CUDA 원본 보존용 Texture 복사
+- API 경계에서 발생하는 대기 비용
+
+이를 통해 D3D12와 CUDA를 연동할 때는 공유 메모리뿐 아니라 Command 제출 경계, Resource State, Pipeline State를 하나의 실행 흐름으로 함께 검증해야 한다는 점을 배웠습니다.
+
 ## 클래스 구성
 
 | 클래스 | 역할 |
