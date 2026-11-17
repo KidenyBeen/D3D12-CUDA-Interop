@@ -4,6 +4,8 @@ DirectX 12로 렌더링한 텍스처를 CPU로 복사하지 않고 CUDA가 직�
 
 > 이 프로젝트의 목표는 단순히 CUDA 커널을 호출하는 것이 아니라, 서로 다른 GPU API가 하나의 리소스를 안전하게 공유하는 렌더링 파이프라인을 직접 설계하고 검증하는 것입니다.
 
+실행 영상: [D3D12-CUDA Interop 실제 동작 확인](https://www.youtube.com/watch?v=tXCfRhbCCkY)
+
 ## 핵심 결과
 
 - D3D12 공유 텍스처를 CUDA External Memory로 가져와 CPU readback 없이 후처리
@@ -20,6 +22,11 @@ DirectX 12로 렌더링한 텍스처를 CPU로 복사하지 않고 CUDA가 직�
 1. D3D12 텍스처를 CPU 복사 없이 CUDA에서 직접 읽고 쓸 수 있는가?
 2. D3D12 Command Queue와 CUDA Stream의 실행 순서를 어떻게 보장할 것인가?
 3. 같은 알고리즘을 서로 다른 GPU 경로로 구현했을 때 어떤 성능 차이가 발생하는가?
+4. CUDA와 같은 범용 GPU 연산 장치를 향후 엔진의 어떤 영역에 활용할 수 있으며, 기존 Compute Shader 중심 구조와 비교했을 때 어떤 설계상 이점을 얻을 수 있는가?
+
+네 번째 질문은 단순한 후처리 성능 비교보다 장기적인 목적을 담고 있습니다. 이미지 필터처럼 Graphics Pipeline과 밀접한 작업은 Compute Shader가 효율적이지만, 군중 시뮬레이션, 다수 캐릭터의 애니메이션 상태 판정, 상태 머신 갱신, 물리·AI 보조 연산처럼 렌더링 Resource 형태에 꼭 맞지 않는 대규모 병렬 작업도 존재합니다.
+
+이 프로젝트는 D3D12-CUDA Interop을 먼저 구축함으로써 이러한 범용 연산을 GPU로 확장할 수 있는 가능성, 설계상의 이점, 데이터 이동 및 동기화 비용을 분석하기 위한 기반입니다.
 
 ## 개발 방식: 기존 엔진 설계 × Codex 협업
 
@@ -143,6 +150,27 @@ Gaussian Blur는 가로·세로 2-pass separable 방식입니다. Pixel Shader, 
 - CUDA 지원 NVIDIA GPU와 호환 드라이버
 - vcpkg `x64-windows` 환경의 Dear ImGui
 
+### 개발 및 실행 PC의 CUDA 장치 정보
+
+아래 정보는 이 프로젝트의 동작을 확인한 개발 PC에서 CUDA 장치 조회 프로그램을 실행한 결과입니다.
+
+| 항목 | 값 |
+|---|---|
+| GPU | NVIDIA GeForce RTX 3070 |
+| CUDA Driver API / Runtime | 13.3 / 12.6 |
+| Compute Capability | 8.6 |
+| Global Memory | 8,191 MB |
+| Shared Memory per Block | 48 KB |
+| Multiprocessors | 46 |
+| Maximum Threads per Multiprocessor | 1,536 |
+| Maximum Threads per Block | 1,024 |
+| Warp Size | 32 |
+| Memory Bus Width | 256-bit |
+
+![개발 PC의 CUDA 장치 정보](docs/images/cuda-device-info-rtx3070.png)
+
+> 위 이미지는 실행 환경에서 조회한 장치 및 Runtime 정보입니다. 현재 Visual Studio 프로젝트의 CUDA Build Customization은 12.8을 기준으로 하므로, 다른 PC에서 빌드할 때는 설치된 Toolkit, 프로젝트 Build Customization, Driver 호환성을 함께 확인해야 합니다.
+
 ### 실행
 
 1. `D3D12-CUDA-Interop.sln`을 Visual Studio에서 엽니다.
@@ -161,11 +189,24 @@ Gaussian Blur는 가로·세로 2-pass separable 방식입니다. Pixel Shader, 
 - 평균 FPS만으로는 동기화 비용을 설명하기 어려워 Frame Time과 GPU Timeline이 함께 필요했습니다.
 - AI 코딩 도구의 제안은 실행 결과가 아니므로, 기존 구조에 대한 이해와 빌드·실행·프로파일링 검증이 필수였습니다.
 
+### Compute Shader와 CUDA 비교에서 얻은 설계 관점
+
+현재의 Gaussian Blur 비교에서는 CUDA 경로의 성능이 Compute Shader보다 크게 낮았습니다. 이 결과는 CUDA 자체의 연산 성능이 항상 낮다는 의미라기보다, 단순 이미지 후처리에서는 DirectX 12 Graphics Pipeline에 이미 통합된 Compute Shader가 유리하다는 점을 보여줍니다.
+
+CUDA 경로에는 외부 메모리 매핑, 원본 보존용 복사, D3D12 Queue와 CUDA Stream 사이의 동기화 비용이 추가됩니다. 현재 CUDA Kernel 역시 Shared Memory를 활용한 Tiling 최적화가 적용되지 않은 기준 구현입니다. 반면 Compute Shader는 D3D12 Texture와 Descriptor를 그대로 사용하므로 이미지 기반 후처리에서 Resource 연결 비용이 상대적으로 작습니다.
+
+Compute Shader를 사용하려면 DirectX 12의 Resource, Descriptor Heap, Root Signature, Compute PSO에 맞춰 메모리를 생성하고 바인딩해야 합니다. 텍스처 기반 후처리는 입출력 형식이 명확하고 D3D12 Resource 구조와 잘 맞기 때문에 이 과정이 비교적 자연스럽습니다. 반면 렌더링과 직접 연결되지 않은 복잡한 일반 목적 데이터를 처리하려면 연산에 필요한 데이터까지 D3D12 Resource와 Descriptor 구조로 설계해야 하므로 데이터 배치와 Pipeline 구성이 빠르게 복잡해질 수 있습니다.
+
+CUDA는 현재와 같은 단순 후처리에서는 Interop 비용 때문에 불리했지만, 일반 포인터 기반의 메모리 할당과 연산 모델을 제공한다는 장점이 있습니다. 향후 군중 제어, 여러 캐릭터의 애니메이션 상태 처리, 상태 머신 갱신, 대규모 판정처럼 렌더링 Pipeline과 느슨하게 결합된 병렬 작업에서는 필요한 데이터를 연산 목적에 맞게 구성하기가 더 편리할 수 있습니다.
+
+따라서 이번 비교에서 얻은 결론은 `CUDA가 Compute Shader보다 빠르다`가 아닙니다. 이미지 후처리처럼 D3D12 Resource와 자연스럽게 연결되는 작업에는 Compute Shader를 우선하고, 복잡한 범용 데이터 구조와 독립적인 GPU 연산이 필요한 작업에는 CUDA를 검토하는 것이 적절하다는 설계 기준을 얻었습니다. 실제 채택 여부는 데이터 이동과 동기화 비용을 포함한 전체 Frame 기준으로 판단해야 합니다.
+
 ### 개선 방향
 
 - Shared Memory 또는 타일 기반 CUDA 커널 최적화
 - GPU Timestamp Query와 CSV 자동 벤치마크 추가
 - Adapter LUID로 D3D12 Adapter와 CUDA Device 일치 자동 검증
+- CUDA를 군중 제어, Animation 상태 처리, 상태 머신 등 범용 병렬 연산에 적용하는 실험
 - 오류 시 프로세스 종료 대신 복구 가능한 오류 전달 구조 적용
 
 ## 주요 파일
